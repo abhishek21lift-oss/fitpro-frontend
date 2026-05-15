@@ -1,5 +1,11 @@
 import "./globals.css";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "FitAI Coach",
+  description: "Premium AI Diet Plan Generator for personal trainers",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,32 +16,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="brand">
               <div className="brand-mark">F</div>
               <div>
-                <p className="brand-kicker">Premium SaaS</p>
-                <h2>FitAI Coach</h2>
+                <p className="brand-kicker">FitAI</p>
+                <h2>Coach</h2>
               </div>
             </Link>
             <nav className="nav">
-              <Link href="/dashboard">Dashboard</Link>
-              <Link href="/clients">Clients</Link>
-              <Link href="/diet-plans/plan-demo">Diet Plans</Link>
-              <Link href="/analytics">Analytics</Link>
-              <Link href="/settings">Settings</Link>
+              <Link href="/dashboard">📊 Dashboard</Link>
+              <Link href="/clients">👤 Clients</Link>
+              <Link href="/diet-plans/plan-demo">🥗 Diet Plans</Link>
+              <Link href="/analytics">📈 Analytics</Link>
+              <Link href="/settings">⚙️ Settings</Link>
             </nav>
             <div className="sidebar-card">
-              <p className="muted-label">Trainer workspace</p>
-              <h3>AI Diet Generator</h3>
-              <p className="muted-copy">Manage clients, generate plans, and track progress from one panel.</p>
-              <Link href="/clients/add" className="primary-btn">Add Client</Link>
+              <p className="muted-label">Quick action</p>
+              <h3>Generate AI plan</h3>
+              <p className="muted-copy">Add a client and instantly create a personalised diet plan.</p>
+              <Link href="/clients/add" className="primary-btn">+ Add Client</Link>
             </div>
           </aside>
           <div className="main-wrap">
             <header className="topbar">
-              <div>
-                <p className="muted-label">Fitness Nutrition CRM</p>
+              <div className="topbar-left">
                 <h1 className="page-title">FitAI Coach</h1>
               </div>
               <div className="topbar-actions">
-                <input className="search-input" placeholder="Search clients, plans, analytics" />
+                <input className="search-input" placeholder="Search clients, plans…" />
                 <Link href="/login" className="ghost-btn">Login</Link>
               </div>
             </header>
@@ -44,5 +49,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
       </body>
     </html>
-  )
+  );
 }
