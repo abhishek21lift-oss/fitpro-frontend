@@ -11,3 +11,4 @@ Next.js frontend for FitAI Coach.
 ```env
 NEXT_PUBLIC_API_URL=https://fitai-coach-backend.onrender.com
 ```
+# FitAI Coach - Apple style rebuild Fri May 15 18:49:33 UTC 2026
