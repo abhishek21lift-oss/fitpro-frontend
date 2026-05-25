@@ -3,7 +3,7 @@
 import { Bell, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-export default function Topbar() {
+export default function Topbar({ children }: { children?: React.ReactNode }) {
   return (
     <header className="topbar">
       <div className="topbar-left">
@@ -17,6 +17,7 @@ export default function Topbar() {
         </div>
       </div>
       <div className="topbar-actions">
+        {children}
         <button className="upgrade-btn">
           <Sparkles size={14} />
           Upgrade Pro

@@ -1,7 +1,9 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Sparkles, Zap, TrendingUp, Target } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,72 +15,123 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError("");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (data.token) {
-      localStorage.setItem("fitai_token", data.token);
-      router.push("/dashboard");
-    } else {
-      setError(data.error || "Login failed. Please check your credentials.");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("fitai_token", data.token);
+        router.push("/dashboard");
+      } else {
+        setError(data.message || "Invalid credentials. Try admin@fitpro.com / fitpro123");
+      }
+    } catch {
+      setError("Connection failed. Is the backend running?");
     }
+    setLoading(false);
   }
 
   return (
-    <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 16px" }}>
-      <div
-        style={{
-          background: "white", borderRadius: 28, padding: "44px 40px", width: "100%", maxWidth: 420,
-          border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
-        }}
-      >
-        <div
-          style={{
-            width: 48, height: 48, borderRadius: 14, background: "#0071e3",
-            display: "grid", placeItems: "center", color: "white", fontSize: 22, fontWeight: 700, marginBottom: 24,
-          }}
-        >F</div>
-        <h2 style={{ margin: "0 0 4px", fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}>Sign in</h2>
-        <p style={{ margin: "0 0 28px", color: "#6e6e73", fontSize: 15 }}>Welcome back to FitAI Coach</p>
+    <div className="login-page">
+      {/* LEFT — Login Form */}
+      <div className="login-left">
+        <div className="login-card">
+          <div className="brand-mark" style={{ marginBottom: 24 }}>
+            <Zap size={20} strokeWidth={2.5} />
+          </div>
+          <h1>Welcome back</h1>
+          <p>Sign in to your FitAI coaching command center.</p>
 
-        <form onSubmit={handleLogin}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#424245", marginBottom: 6 }}>Email</label>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div className="form-group">
+              <label className="input-label">Email</label>
               <input
-                type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                placeholder="you@example.com"
-                style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.12)", background: "#f5f5f7", fontSize: 15 }}
+                className="input-field" type="email" value={email}
+                onChange={(e) => setEmail(e.target.value)} required
+                placeholder="admin@fitpro.com"
               />
             </div>
-            <div>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#424245", marginBottom: 6 }}>Password</label>
+            <div className="form-group">
+              <label className="input-label">Password</label>
               <input
-                type="password" value={password} onChange={e => setPassword(e.target.value)} required
+                className="input-field" type="password" value={password}
+                onChange={(e) => setPassword(e.target.value)} required
                 placeholder="Enter your password"
-                style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.12)", background: "#f5f5f7", fontSize: 15 }}
               />
+            </div>
+
+            {error && (
+              <p style={{ fontSize: 13, color: "var(--red)", margin: 0 }}>{error}</p>
+            )}
+
+            <button
+              type="submit" disabled={loading}
+              className="btn btn-primary btn-lg"
+              style={{ width: "100%", marginTop: 4, justifyContent: "center" }}
+            >
+              {loading ? (
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span className="ai-dot" /> Signing in…
+                </span>
+              ) : (
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Sparkles size={16} /> Sign in
+                </span>
+              )}
+            </button>
+
+            <p className="text-sm text-center text-muted" style={{ marginTop: 12 }}>
+              Demo: <strong>admin@fitpro.com</strong> / <strong>fitpro123</strong>
+            </p>
+          </form>
+        </div>
+      </div>
+
+      {/* RIGHT — Brand Panel */}
+      <div className="login-right">
+        <div className="login-right-content">
+          <div style={{
+            width: 64, height: 64, borderRadius: 18,
+            background: "linear-gradient(135deg, #2563EB, #4F46E5)",
+            display: "grid", placeItems: "center", margin: "0 auto 24px",
+            boxShadow: "0 0 30px rgba(37,99,235,0.25)",
+          }}>
+            <Zap size={28} strokeWidth={2} color="white" />
+          </div>
+          <h2>AI-powered fitness coaching</h2>
+          <p>Generate personalised diet plans, track client adherence, and grow your coaching business — all from one intelligent workspace.</p>
+
+          <div className="login-stats">
+            <div className="login-stat">
+              <div className="login-stat-value">28</div>
+              <div className="login-stat-label">Active clients</div>
+            </div>
+            <div className="login-stat">
+              <div className="login-stat-value">142</div>
+              <div className="login-stat-label">AI plans</div>
+            </div>
+            <div className="login-stat">
+              <div className="login-stat-value">89%</div>
+              <div className="login-stat-label">Adherence</div>
             </div>
           </div>
-          {error && <p style={{ marginTop: 12, color: "#e53935", fontSize: 13 }}>{error}</p>}
-          <button
-            type="submit" disabled={loading}
-            style={{
-              width: "100%", marginTop: 20, padding: "14px", borderRadius: 980,
-              background: loading ? "#90c2f5" : "#0071e3", color: "white",
-              fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em", cursor: loading ? "not-allowed" : "pointer",
-              transition: "background 160ms",
-            }}
-          >{loading ? "Signing in…" : "Sign in"}</button>
-        </form>
-        <p style={{ marginTop: 20, textAlign: "center", fontSize: 14, color: "#6e6e73" }}>
-          New here?{" "}
-          <Link href="/dashboard" style={{ color: "#0071e3", fontWeight: 600 }}>Open dashboard</Link>
-        </p>
+
+          <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 10, textAlign: "left" }}>
+            {[
+              { icon: <Zap size={14} />, text: "AI-generated diet plans in seconds" },
+              { icon: <TrendingUp size={14} />, text: "Real-time adherence tracking" },
+              { icon: <Target size={14} />, text: "Smart recommendations powered by AI" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.6)", fontSize: 13 }}>
+                <span style={{ color: "var(--emerald)" }}>{item.icon}</span>
+                {item.text}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
