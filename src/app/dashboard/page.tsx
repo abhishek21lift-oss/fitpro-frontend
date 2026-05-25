@@ -1,15 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
 export default function DashboardPage() {
+  const [clients, setClients] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("fitai_token");
+    if (!token) { setLoading(false); return; }
+
+    Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/dashboard`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => null),
+    ]).then(([c, a]) => {
+      setClients(Array.isArray(c) ? c : []);
+      setAnalytics(a);
+    }).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="stack"><p className="subtle">Loading dashboard...</p></div>;
+
   const stats = [
-    ["Total Clients", "128", "+12%"],
-    ["Active Plans", "94", "+8 this week"],
-    ["Monthly Revenue", "₹1.84L", "+16.2%"],
-    ["Success Rate", "87%", "7 need review"],
+    ["Total Clients", analytics?.totalClients ?? clients.length, `${clients.length > 0 ? '+1 this week' : 'No data'}`],
+    ["Active Plans", analytics?.activePlans ?? 0, `${(analytics?.activePlans || 0) > 0 ? 'Active' : 'Generate your first plan'}`],
+    ["Monthly Revenue", analytics ? `₹${(analytics.revenue || 0).toLocaleString('en-IN')}` : '₹0', "Estimated"],
+    ["Success Rate", analytics ? `${analytics.successRate || 0}%` : '—', analytics?.totalClients ? `${analytics.activePlans}/${analytics.totalClients} have plans` : 'Add clients to start'],
   ];
-  const plans = [
-    ["Riya Mehra", "Fat Loss Veg Plan", "1780 kcal", "#eaf7ef", "#1d8348"],
-    ["Arjun Singh", "Lean Bulk Plan", "2640 kcal", "#e8f0fb", "#0071e3"],
-    ["Neha Kapoor", "Maintenance Vegan Plan", "1925 kcal", "#eaf7ef", "#1d8348"],
-  ];
+
   return (
     <div className="stack">
       <section className="hero-card hero-grid">
@@ -23,8 +43,8 @@ export default function DashboardPage() {
         <div className="panel">
           <p className="muted-label">Quick actions</p>
           <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-            <a href="/clients/add" className="primary-btn" style={{ marginTop: 0, textAlign: "center" }}>Add new client</a>
-            <a href="/clients" className="ghost-btn" style={{ textAlign: "center" }}>View all clients</a>
+            <Link href="/clients/add" className="primary-btn" style={{ marginTop: 0, textAlign: "center" }}>Add new client</Link>
+            <Link href="/clients" className="ghost-btn" style={{ textAlign: "center" }}>View all clients</Link>
           </div>
         </div>
       </section>
@@ -41,30 +61,38 @@ export default function DashboardPage() {
 
       <section className="panel-grid">
         <div className="table-card">
-          <div style={{ padding: "20px 20px 0" }}>
-            <h3 className="section-title" style={{ fontSize: 17 }}>Recent clients</h3>
+          <div style={{ padding: "20px 20px 0", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 className="section-title" style={{ fontSize: 17 }}>Clients</h3>
+            <Link href="/clients" style={{ color: '#0071e3', fontSize: 13, fontWeight: 600 }}>View all</Link>
           </div>
-          <table className="data-table">
-            <thead>
-              <tr><th>Name</th><th>Goal</th><th>Diet</th><th>Weight</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Riya Mehra</td><td>Fat Loss</td><td>Veg</td><td>68 kg</td></tr>
-              <tr><td>Arjun Singh</td><td>Muscle Gain</td><td>Non-Veg</td><td>81 kg</td></tr>
-              <tr><td>Neha Kapoor</td><td>Maintenance</td><td>Vegan</td><td>59 kg</td></tr>
-            </tbody>
-          </table>
+          {clients.length === 0 ? (
+            <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+              <p className="subtle">No clients yet.</p>
+              <Link href="/clients/add" className="primary-btn">Add your first client</Link>
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr><th>Name</th><th>Goal</th><th>Diet</th><th>Weight</th></tr>
+              </thead>
+              <tbody>
+                {clients.slice(0, 5).map((c: any) => (
+                  <tr key={c.id}>
+                    <td><Link href={`/clients/${c.id}`} style={{ color: '#0071e3', fontWeight: 600 }}>{c.full_name}</Link></td>
+                    <td>{c.goal || '—'}</td>
+                    <td>{c.diet_type || '—'}</td>
+                    <td>{c.weight ? `${c.weight} kg` : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
         <div className="panel">
-          <h3 className="section-title" style={{ fontSize: 17, marginBottom: 16 }}>Latest plans</h3>
+          <h3 className="section-title" style={{ fontSize: 17, marginBottom: 16 }}>Quick actions</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {plans.map(([client, title, kcal, bg, color]) => (
-              <div key={client} className="meal-card">
-                <p className="muted-label">{client}</p>
-                <h4 style={{ margin: "6px 0 4px", fontSize: 14, fontWeight: 600 }}>{title}</h4>
-                <span style={{ display: "inline-flex", padding: "3px 10px", borderRadius: 980, fontSize: 12, fontWeight: 600, background: bg as string, color: color as string }}>{kcal}</span>
-              </div>
-            ))}
+            <Link href="/diet-plans" className="primary-btn" style={{ marginTop: 0, textAlign: "center" }}>View Diet Plans</Link>
+            <Link href="/analytics" className="ghost-btn" style={{ textAlign: "center" }}>View Analytics</Link>
           </div>
         </div>
       </section>

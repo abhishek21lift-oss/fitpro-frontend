@@ -1,13 +1,21 @@
+"use client";
+
 import "./globals.css";
 import Link from "next/link";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "FitAI Coach",
-  description: "Premium AI Diet Plan Generator for personal trainers",
-};
+import { useEffect, useState } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setLoggedIn(!!localStorage.getItem("fitai_token"));
+  }, []);
+
+  function handleLogout() {
+    localStorage.removeItem("fitai_token");
+    window.location.href = "/";
+  }
+
   return (
     <html lang="en">
       <body>
@@ -23,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="nav">
               <Link href="/dashboard">📊 Dashboard</Link>
               <Link href="/clients">👤 Clients</Link>
-              <Link href="/diet-plans/plan-demo">🥗 Diet Plans</Link>
+              <Link href="/diet-plans">🥗 Diet Plans</Link>
               <Link href="/analytics">📈 Analytics</Link>
               <Link href="/settings">⚙️ Settings</Link>
             </nav>
@@ -40,8 +48,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <h1 className="page-title">FitAI Coach</h1>
               </div>
               <div className="topbar-actions">
-                <input className="search-input" placeholder="Search clients, plans…" />
-                <Link href="/login" className="ghost-btn">Login</Link>
+                {loggedIn ? (
+                  <button onClick={handleLogout} className="ghost-btn" style={{ fontSize: 13, padding: '6px 14px' }}>Logout</button>
+                ) : (
+                  <Link href="/login" className="ghost-btn">Login</Link>
+                )}
               </div>
             </header>
             <main className="page-content">{children}</main>
