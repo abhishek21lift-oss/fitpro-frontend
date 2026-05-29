@@ -34,7 +34,7 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ name, email, password }),
       }),
-    me: () => request<{ user: { sub: string; email: string } }>('/auth/me'),
+    me: () => request<{ user: any }>('/auth/me'),
   },
   clients: {
     list: () => request<any[]>('/clients'),
@@ -47,13 +47,48 @@ export const api = {
       create: (clientId: string, data: { weight: number; note?: string }) =>
         request<any>(`/clients/${clientId}/progress`, { method: 'POST', body: JSON.stringify(data) }),
     },
+    measurements: {
+      list: (clientId: string) => request<any[]>(`/clients/${clientId}/measurements`),
+      create: (clientId: string, data: any) =>
+        request<any>(`/clients/${clientId}/measurements`, { method: 'POST', body: JSON.stringify(data) }),
+    },
+    adherence: {
+      list: (clientId: string) => request<any[]>(`/clients/${clientId}/adherence`),
+      create: (clientId: string, data: any) =>
+        request<any>(`/clients/${clientId}/adherence`, { method: 'POST', body: JSON.stringify(data) }),
+    },
+    workoutLogs: {
+      list: (clientId: string) => request<any[]>(`/clients/${clientId}/workout-logs`),
+      create: (clientId: string, data: any) =>
+        request<any>(`/clients/${clientId}/workout-logs`, { method: 'POST', body: JSON.stringify(data) }),
+    },
   },
   dietPlans: {
+    byClient: (clientId: string) => request<any[]>(`/diet-plans/by-client/${clientId}`),
     get: (id: string) => request<any>(`/diet-plans/${id}`),
     generate: (clientId: string) =>
       request<any>(`/diet-plans/generate/${clientId}`, { method: 'POST' }),
+    update: (id: string, data: any) =>
+      request<any>(`/diet-plans/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  },
+  workoutPlans: {
+    byClient: (clientId: string) => request<any[]>(`/workout-plans/by-client/${clientId}`),
+    get: (id: string) => request<any>(`/workout-plans/${id}`),
+    generate: (clientId: string) =>
+      request<any>(`/workout-plans/generate/${clientId}`, { method: 'POST' }),
+    update: (id: string, data: any) =>
+      request<any>(`/workout-plans/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  },
+  engine: {
+    calculate: (clientId: string) =>
+      request<any>(`/engine/calculate/${clientId}`, { method: 'POST' }),
+    splits: () => request<any>('/engine/splits'),
+  },
+  reEvaluate: {
+    analyze: (clientId: string) =>
+      request<any>(`/re-evaluate/${clientId}`, { method: 'POST' }),
   },
   analytics: {
-    dashboard: () => request<{ totalClients: number; activePlans: number; revenue: number; successRate: number }>('/analytics/dashboard'),
+    dashboard: () => request<any>('/analytics/dashboard'),
   },
 }
