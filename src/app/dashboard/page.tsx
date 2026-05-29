@@ -4,63 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Users, Zap, Activity, TrendingUp, UserPlus, Sparkles, BarChart3,
-  Download, Calendar, Brain, Target, Bot, ArrowUpRight, Plus,
-  Flame, ChevronRight, MessageSquare, X,
+  Calendar, Brain, Target, Bot, ArrowUpRight, ChevronRight,
+  Flame, Salad, Dumbbell, Clock, CheckCircle, AlertCircle,
+  X, Loader2,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
 
-/* ═══════════════════════════════════════════
-   STAT CARD
-   ═══════════════════════════════════════════ */
-function StatCard({
-  label, value, trend, trendUp, icon: Icon, color, chartData, chartColor,
-  subtitle,
-}: {
-  label: string; value: string; trend: string; trendUp: boolean;
-  icon: any; color: string; chartData?: { v: number }[]; chartColor?: string;
-  subtitle?: string;
-}) {
-  return (
-    <div className="stat-card">
-      <div className="stat-card-header">
-        <div className={`stat-icon ${color}`}>
-          <Icon size={18} strokeWidth={1.5} />
-        </div>
-        <span className={`stat-trend ${trendUp ? "up" : "down"}`}>
-          {trendUp ? "↑" : "↓"} {trend}
-        </span>
-      </div>
-      <div className="stat-value">{value}</div>
-      <div className="stat-label">{subtitle || label}</div>
-      {chartData && (
-        <div className="stat-chart">
-          <ResponsiveContainer width="100%" height={32}>
-            <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id={`grad-${label}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={chartColor || "#2563EB"} stopOpacity={0.2} />
-                  <stop offset="100%" stopColor={chartColor || "#2563EB"} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Tooltip
-                contentStyle={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 13, boxShadow: "var(--shadow-lg)" }}
-                formatter={(v: number) => [v, label]}
-              />
-              <Area type="monotone" dataKey="v" stroke={chartColor || "#2563EB"} strokeWidth={2} fill={`url(#grad-${label})`} dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-    </div>
-  );
-}
+const colorClasses = ["#2563EB", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899", "#EF4444"];
 
-/* ═══════════════════════════════════════════
-   AI ASSISTANT PANEL
-   ═══════════════════════════════════════════ */
 function AIPanel({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([
-    { role: "bot", text: "Hi Abhishek! I'm your AI coaching assistant. Ask me anything about your clients, plans, or insights." },
+    { role: "bot", text: "Hi! I'm your FitAI assistant. Ask me about your clients, plans, or insights." },
   ]);
   const [input, setInput] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -71,10 +25,13 @@ function AIPanel({ onClose }: { onClose: () => void }) {
     setMessages((m) => [...m, { role: "user", text: userMsg }]);
     setInput("");
     setTimeout(() => {
-      setMessages((m) => [...m, {
-        role: "bot",
-        text: `Let me analyze that for you. Based on your current data: ${userMsg.includes("adherence") ? "Rahul Sharma is at 92% and Priya at 88%. Overall average is 84%." : userMsg.includes("client") ? "You have 28 active clients. 5 are due for check-in today." : "I've noted your request. Would you like me to generate a detailed report?"}`,
-      }]);
+      const replies: Record<string, string> = {
+        adherence: "Overall adherence is 84%. Rahul Sharma leads at 92%, Priya at 88%.",
+        client: "You have active clients. 2 are due for check-in today.",
+        default: "Noted your request. Would you like me to generate a detailed report?",
+      };
+      const key = Object.keys(replies).find((k) => userMsg.includes(k)) || "default";
+      setMessages((m) => [...m, { role: "bot", text: replies[key] }]);
     }, 800);
   }
 
@@ -110,60 +67,100 @@ function AIPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   DATA
-   ═══════════════════════════════════════════ */
-const trendData = [
-  { v: 8 }, { v: 12 }, { v: 10 }, { v: 15 }, { v: 13 }, { v: 18 },
-  { v: 16 }, { v: 21 }, { v: 19 }, { v: 24 }, { v: 22 }, { v: 28 },
-];
-const revenueData = [
-  { v: 3.2 }, { v: 4.1 }, { v: 3.8 }, { v: 5.3 }, { v: 4.9 }, { v: 6.2 },
-];
-
-const activities = [
-  { text: "Rahul Sharma checked in — 2kg lost this week", meta: "12 min ago", color: "emerald", icon: "↓" },
-  { text: "AI plan generated for Priya Patel", meta: "1h ago", color: "blue", icon: "AI" },
-  { text: "Ananya missed yesterday's workout", meta: "3h ago", color: "red", icon: "!" },
-  { text: "Vikram hit 90% protein target for 5 days", meta: "5h ago", color: "emerald", icon: "★" },
-  { text: "New recommendation: Increase water intake for Arjun", meta: "1d ago", color: "orange", icon: "💧" },
-  { text: "Milestone: Priya completed 30 days streak", meta: "2d ago", color: "purple", icon: "🏆" },
-];
-
-const recentClients = [
-  { name: "Rahul Sharma", goal: "Weight Loss", adherence: 92, diet: "Veg", nextCheckin: "Tomorrow", progress: "+2kg" },
-  { name: "Priya Patel", goal: "Muscle Gain", adherence: 88, diet: "Non-Veg", nextCheckin: "Today", progress: "+1.5kg" },
-  { name: "Vikram Singh", goal: "Maintenance", adherence: 95, diet: "Vegan", nextCheckin: "Fri", progress: "0kg" },
-  { name: "Ananya Reddy", goal: "Weight Loss", adherence: 67, diet: "Veg", nextCheckin: "Overdue", progress: "-0.5kg" },
-  { name: "Arjun Nair", goal: "Muscle Gain", adherence: 78, diet: "Non-Veg", nextCheckin: "Sat", progress: "+0.8kg" },
-];
-
-/* ═══════════════════════════════════════════
-   DASHBOARD PAGE
-   ═══════════════════════════════════════════ */
 export default function DashboardPage() {
   const [aiOpen, setAiOpen] = useState(false);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("fitai_token");
+    if (!token) { setLoading(false); return; }
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((r) => r.json()).then(setStats).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const trendData = [
+    { v: 8 }, { v: 12 }, { v: 10 }, { v: 15 }, { v: 13 }, { v: 18 },
+    { v: 16 }, { v: 21 }, { v: 19 }, { v: 24 }, { v: 22 }, { v: 28 },
+  ];
+
+  const StatCard = ({
+    label, value, trend, trendUp, icon: Icon, color, chartColor, subtitle, href,
+  }: {
+    label: string; value: string; trend: string; trendUp: boolean;
+    icon: any; color: string; chartColor?: string; subtitle?: string; href?: string;
+  }) => {
+    const card = (
+      <div className="stat-card" style={{ cursor: href ? "pointer" : "default" }}>
+        <div className="stat-card-header">
+          <div className={`stat-icon ${color}`}>
+            <Icon size={18} strokeWidth={1.5} />
+          </div>
+          <span className={`stat-trend ${trendUp ? "up" : "down"}`}>
+            {trendUp ? "↑" : "↓"} {trend}
+          </span>
+        </div>
+        <div className="stat-value">{value}</div>
+        <div className="stat-label">{subtitle || label}</div>
+        <div className="stat-chart">
+          <ResponsiveContainer width="100%" height={32}>
+            <AreaChart data={trendData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id={`grad-${label}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={chartColor || "#2563EB"} stopOpacity={0.2} />
+                  <stop offset="100%" stopColor={chartColor || "#2563EB"} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Tooltip
+                contentStyle={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 13, boxShadow: "var(--shadow-lg)" }}
+                formatter={(v: number) => [v, label]}
+              />
+              <Area type="monotone" dataKey="v" stroke={chartColor || "#2563EB"} strokeWidth={2} fill={`url(#grad-${label})`} dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+    return href ? <Link href={href}>{card}</Link> : card;
+  };
+
+  if (loading) {
+    return (
+      <div className="page-content">
+        <div className="skeleton" style={{ width: "100%", height: 280, borderRadius: "var(--radius-xl)" }} />
+        <div className="stats-grid">
+          {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: 140 }} />)}
+        </div>
+      </div>
+    );
+  }
+
+  const clients = stats?.recentClients || [];
+  const activity = stats?.recentActivity || [];
 
   return (
     <div className="page-content">
-      {/* ═══ HERO — AI COMMAND CENTER ═══ */}
+      {/* ═══ HERO ═══ */}
       <section className="hero-banner">
         <div className="hero-content">
-          <p className="hero-greeting">Good morning, Abhishek</p>
-          <h1 className="hero-title">Your AI coaching command center</h1>
+          <p className="hero-greeting">
+            {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening"}, Trainer
+          </p>
+          <h1 className="hero-title">Your coaching command center</h1>
           <p className="hero-subtitle">
-            Your clients are <strong style={{ color: "#10B981" }}>32% more consistent</strong> this week.
-            Rahul Sharma hit a <strong style={{ color: "#10B981" }}>7-day streak</strong>. Generate plans, track adherence,
-            and grow your practice — all powered by AI.
+            {stats?.totalClients > 0
+              ? `${stats.totalClients} clients · ${stats.activePlans} active plans · ${stats.successRate}% success rate`
+              : "Add your first client to get started with AI-powered fitness plans."}
           </p>
           <div className="hero-actions">
             <Link href="/clients/add" className="hero-cta">
-              <Sparkles size={18} />
-              Generate AI Plan
-            </Link>
-            <Link href="/clients/add" className="hero-cta-secondary">
               <UserPlus size={18} />
               Add Client
+            </Link>
+            <Link href="/clients" className="hero-cta-secondary">
+              <Users size={18} />
+              View Clients
             </Link>
             <button onClick={() => setAiOpen(true)} className="hero-cta-secondary">
               <Bot size={18} />
@@ -171,146 +168,219 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="hero-insights">
-            <span className="hero-chip"><Zap size={12} /> <span className="hero-chip-trend">12 active</span> plans this week</span>
-            <span className="hero-chip"><TrendingUp size={12} /> <span className="hero-chip-trend">89%</span> avg adherence</span>
-            <span className="hero-chip"><Target size={12} /> <span className="hero-chip-trend">5</span> check-ins today</span>
-            <span className="hero-chip"><Flame size={12} /> <span className="hero-chip-trend">3</span> streaks active</span>
+            {[
+              { icon: Zap, label: "active plans", value: stats?.activePlans || 0 },
+              { icon: Dumbbell, label: "workout plans", value: stats?.workoutPlans || 0 },
+              { icon: TrendingUp, label: "success rate", value: `${stats?.successRate || 0}%` },
+              { icon: Users, label: "total clients", value: stats?.totalClients || 0 },
+            ].filter((item) => item.value !== 0 || stats === null).map((item) => (
+              <span key={item.label} className="hero-chip">
+                <item.icon size={12} />
+                <span className="hero-chip-trend">{item.value}</span> {item.label}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ═══ METRICS ═══ */}
       <section className="stats-grid">
-        <StatCard label="Active Clients" value="28" trend="+12%" trendUp={true} icon={Users} color="blue" chartData={trendData} subtitle="Total active clients" />
-        <StatCard label="AI Plans" value="142" trend="+24%" trendUp={true} icon={Zap} color="purple" chartData={trendData} subtitle="Generated this month" />
-        <StatCard label="Adherence" value="89%" trend="+5%" trendUp={true} icon={Activity} color="emerald" chartData={trendData} subtitle="Weekly average" />
-        <StatCard label="Revenue" value="₹1.84L" trend="+18%" trendUp={true} icon={TrendingUp} color="orange" chartData={revenueData} chartColor="#F59E0B" subtitle="Monthly recurring" />
+        <StatCard
+          label="Total Clients" value={String(stats?.totalClients || 0)}
+          trend={stats?.totalClients > 0 ? "+12%" : "0%"} trendUp={true}
+          icon={Users} color="blue" subtitle="Registered clients"
+          href="/clients"
+        />
+        <StatCard
+          label="Active Plans" value={String(stats?.activePlans || 0)}
+          trend={stats?.activePlans > 0 ? "+24%" : "0%"} trendUp={true}
+          icon={Salad} color="purple" subtitle="Diet plans generated"
+          href="/diet-plans"
+        />
+        <StatCard
+          label="Workout Plans" value={String(stats?.workoutPlans || 0)}
+          trend={stats?.workoutPlans > 0 ? "+18%" : "0%"} trendUp={true}
+          icon={Dumbbell} color="emerald" subtitle="Workout plans"
+        />
+        <StatCard
+          label="Success Rate" value={`${stats?.successRate || 0}%`}
+          trend={stats?.successRate >= 50 ? "+5%" : "0%"} trendUp={stats?.successRate >= 50}
+          icon={Activity} color="orange" chartColor="#F59E0B" subtitle="Clients with plans"
+        />
       </section>
+
+      {/* ═══ EMPTY STATE ═══ */}
+      {stats?.totalClients === 0 && (
+        <div className="empty-state" style={{ padding: "var(--space-16) var(--space-6)" }}>
+          <div className="empty-state-icon"><Users size={28} /></div>
+          <h2 className="empty-state-title">Welcome to FitAI Coach</h2>
+          <p className="empty-state-text">
+            Get started by adding your first client. FitAI will generate personalized diet and workout plans powered by our AI engine.
+          </p>
+          <Link href="/clients/add" className="btn btn-primary btn-lg">
+            <UserPlus size={16} />
+            Add Your First Client
+          </Link>
+        </div>
+      )}
 
       {/* ═══ MAIN GRID ═══ */}
-      <section className="section-grid">
-        {/* LEFT — Recent Clients */}
-        <div className="panel">
-          <div className="panel-header">
-            <h2 className="panel-title">Client overview</h2>
-            <Link href="/clients" style={{ color: "var(--blue)", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-              View all <ChevronRight size={14} />
-            </Link>
-          </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Client</th>
-                <th>Goal</th>
-                <th>Adherence</th>
-                <th>Diet</th>
-                <th>Progress</th>
-                <th>Next</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentClients.map((c) => (
-                <tr key={c.name}>
-                  <td style={{ fontWeight: 600, color: "var(--text)" }}>{c.name}</td>
-                  <td><span className="text-sm">{c.goal}</span></td>
-                  <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div className="progress-bar" style={{ width: 60 }}>
-                        <div className={`progress-fill ${c.adherence >= 80 ? "emerald" : c.adherence >= 70 ? "orange" : "red"}`} style={{ width: `${c.adherence}%` }} />
-                      </div>
-                      <span className={`badge ${c.adherence >= 80 ? "badge-emerald" : c.adherence >= 70 ? "badge-orange" : "badge-red"}`} style={{ fontSize: 11, padding: "0 6px" }}>
-                        {c.adherence}%
-                      </span>
-                    </div>
-                  </td>
-                  <td><span className="text-sm">{c.diet}</span></td>
-                  <td><span className="text-sm font-semibold" style={{ color: c.progress.startsWith("+") ? "var(--emerald)" : "var(--text-muted)" }}>{c.progress}</span></td>
-                  <td>
-                    <span className={`badge ${c.nextCheckin === "Overdue" ? "badge-red" : c.nextCheckin === "Today" ? "badge-orange" : "badge-ghost"}`} style={{ fontSize: 11 }}>
-                      {c.nextCheckin}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* RIGHT — Activity + Quick Actions */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-          {/* Activity Feed */}
+      {stats?.totalClients > 0 && (
+        <section className="section-grid">
+          {/* LEFT — Recent Clients */}
           <div className="panel">
             <div className="panel-header">
-              <h2 className="panel-title">Activity</h2>
-              <span className="badge badge-blue" style={{ fontSize: 11 }}>Live</span>
+              <h2 className="panel-title">Recent clients</h2>
+              <Link href="/clients" className="btn btn-ghost btn-sm">
+                View all <ChevronRight size={14} />
+              </Link>
             </div>
-            <div className="panel-body" style={{ padding: "var(--space-2) var(--space-6)" }}>
-              <div className="timeline">
-                {activities.map((a, i) => (
-                  <div key={i} className="timeline-item">
-                    <div className={`timeline-dot ${a.color}`}>{a.icon}</div>
-                    <div className="timeline-content">
-                      <p className="timeline-text">{a.text}</p>
-                      <p className="timeline-meta">{a.meta}</p>
-                    </div>
+            {clients.length > 0 ? (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Goal</th>
+                    <th>Diet</th>
+                    <th>AI Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clients.slice(0, 6).map((c: any, i: number) => (
+                    <tr key={c.id} onClick={() => window.location.href = `/clients/${c.id}`}>
+                      <td style={{ fontWeight: 600, color: "var(--text)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{
+                            width: 28, height: 28, borderRadius: 8,
+                            background: colorClasses[i % colorClasses.length],
+                            color: "white", fontSize: 11, fontWeight: 700,
+                            display: "grid", placeItems: "center",
+                          }}>
+                            {(c.full_name || "?").split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase()}
+                          </div>
+                          {c.full_name}
+                        </div>
+                      </td>
+                      <td><span className="text-sm">{c.goal || "—"}</span></td>
+                      <td><span className="badge badge-ghost" style={{ fontSize: 11 }}>{c.diet_type || "—"}</span></td>
+                      <td>
+                        <span className={`badge ${c.plan_status === "calculated" ? "badge-emerald" : "badge-orange"}`} style={{ fontSize: 11 }}>
+                          {c.plan_status === "calculated" ? "AI Ready" : c.plan_status === "needs_update" ? "Update" : "Pending"}
+                        </span>
+                      </td>
+                      <td><ArrowUpRight size={14} style={{ color: "var(--text-muted)" }} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="panel-body">
+                <p className="text-muted" style={{ fontSize: 14 }}>No clients yet. Add one to get started.</p>
+              </div>
+            )}
+            <div className="panel-footer">
+              <Link href="/clients/add" className="btn btn-primary btn-sm">
+                <UserPlus size={14} /> Add Client
+              </Link>
+            </div>
+          </div>
+
+          {/* RIGHT — Activity + Quick Actions */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+            {/* Activity */}
+            <div className="panel">
+              <div className="panel-header">
+                <h2 className="panel-title">Activity</h2>
+                {activity.length > 0 && <span className="badge badge-blue" style={{ fontSize: 11 }}>Live</span>}
+              </div>
+              <div className="panel-body" style={{ padding: "var(--space-2) var(--space-6)" }}>
+                {activity.length > 0 ? (
+                  <div className="timeline">
+                    {activity.slice(0, 6).map((a: any, i: number) => {
+                      const iconMap: Record<string, any> = {
+                        progress: { icon: CheckCircle, color: "emerald" },
+                        diet_plan: { icon: Salad, color: "blue" },
+                        workout_plan: { icon: Dumbbell, color: "purple" },
+                      };
+                      const meta = iconMap[a.type] || { icon: Activity, color: "blue" };
+                      return (
+                        <div key={i} className="timeline-item">
+                          <div className={`timeline-dot ${meta.color}`}>
+                            <meta.icon size={12} />
+                          </div>
+                          <div className="timeline-content">
+                            <p className="timeline-text">{a.text}</p>
+                            <p className="timeline-meta">{new Date(a.ts).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                ) : (
+                  <div style={{ padding: "var(--space-4) 0", textAlign: "center" }}>
+                    <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>No recent activity. Generate a plan to see activity here.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="panel">
+              <div className="panel-header">
+                <h2 className="panel-title">Quick actions</h2>
+              </div>
+              <div className="panel-body">
+                <div className="quick-actions">
+                  <Link href="/clients/add" className="quick-action">
+                    <UserPlus size={24} className="quick-action-icon" />
+                    Add Client
+                  </Link>
+                  <button onClick={() => setAiOpen(true)} className="quick-action">
+                    <Bot size={24} className="quick-action-icon" />
+                    Ask FitAI
+                  </button>
+                  <Link href="/clients" className="quick-action">
+                    <Calendar size={24} className="quick-action-icon" />
+                    Clients
+                  </Link>
+                  <Link href="/analytics" className="quick-action">
+                    <BarChart3 size={24} className="quick-action-icon" />
+                    Analytics
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
+        </section>
+      )}
 
-          {/* Quick Actions */}
-          <div className="panel">
-            <div className="panel-header">
-              <h2 className="panel-title">Quick actions</h2>
-            </div>
-            <div className="panel-body">
-              <div className="quick-actions">
-                <Link href="/clients/add" className="quick-action">
-                  <Sparkles size={24} className="quick-action-icon" />
-                  Generate AI Plan
-                </Link>
-                <button onClick={() => setAiOpen(true)} className="quick-action">
-                  <Bot size={24} className="quick-action-icon" />
-                  Ask FitAI
-                </button>
-                <Link href="/clients" className="quick-action">
-                  <Calendar size={24} className="quick-action-icon" />
-                  Schedule Check-in
-                </Link>
-                <Link href="/analytics" className="quick-action">
-                  <BarChart3 size={24} className="quick-action-icon" />
-                  View Analytics
-                </Link>
-              </div>
-            </div>
+      {/* ═══ AI INSIGHT ═══ */}
+      {stats?.totalClients > 0 && (
+        <div className="ai-insight">
+          <Brain size={24} style={{ color: "var(--blue)", flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "var(--text)" }}>
+              AI Insight
+            </p>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "2px 0 0" }}>
+              {stats?.totalClients > 0
+                ? `${stats.totalClients} client${stats.totalClients > 1 ? "s" : ""} enrolled · ${stats.activePlans} diet plans active · ${stats.successRate}% of clients have an active plan. Keep up the momentum!`
+                : "Add clients and generate plans to see AI-powered insights here."}
+            </p>
           </div>
+          <Link href="/analytics" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>
+            View Analytics
+          </Link>
         </div>
-      </section>
+      )}
 
-      {/* ═══ AI INSIGHT BAR ═══ */}
-      <div className="ai-insight">
-        <Brain size={24} style={{ color: "var(--blue)", flexShrink: 0 }} />
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "var(--text)" }}>
-            AI Insight
-          </p>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "2px 0 0" }}>
-            Rahul Sharma&apos;s protein intake is 23% below target. Consider suggesting a whey isolate or plant-based protein boost to maintain muscle during his cut phase.
-          </p>
-        </div>
-        <Link href="/clients" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>
-          View Client
-        </Link>
-      </div>
-
-      {/* ═══ AI ASSISTANT FAB ═══ */}
+      {/* ═══ AI FAB ═══ */}
       <button className="ai-fab" onClick={() => setAiOpen((o) => !o)}>
         <span className="ai-fab-pulse" />
         <Bot size={24} />
       </button>
 
-      {/* ═══ AI PANEL ═══ */}
       {aiOpen && <AIPanel onClose={() => setAiOpen(false)} />}
     </div>
   );

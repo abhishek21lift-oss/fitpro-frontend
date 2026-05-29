@@ -1,75 +1,42 @@
 import Link from "next/link";
+import { ArrowRight, Users, Salad, TrendingUp, Bot } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="stack">
-      <section
-        style={{
-          background: "white",
-          borderRadius: 32,
-          padding: "48px 40px",
-          border: "1px solid rgba(0,0,0,0.05)",
-          boxShadow: "0 2px 18px rgba(0,0,0,0.07)",
-          textAlign: "center",
-          maxWidth: 760,
-          margin: "0 auto",
-          width: "100%",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-flex", alignItems: "center", justifyContent: "center",
-            background: "#e8f0fb", borderRadius: 980, padding: "6px 16px",
-            fontSize: 13, color: "#0071e3", fontWeight: 600, marginBottom: 20,
-          }}
-        >
-          FitAI Coach · Premium trainer workspace
-        </div>
-        <h1
-          style={{
-            margin: "0 auto 20px",
-            fontSize: "clamp(28px, 5vw, 48px)",
-            fontWeight: 700,
-            letterSpacing: "-0.03em",
-            lineHeight: 1.07,
-            color: "#1d1d1f",
-            maxWidth: 640,
-          }}
-        >
-          The intelligent nutrition dashboard for elite personal trainers
-        </h1>
-        <p
-          style={{
-            margin: "0 auto 32px",
-            maxWidth: 540,
-            color: "#6e6e73",
-            fontSize: 17,
-            lineHeight: 1.65,
-          }}
-        >
-          Manage clients, generate AI-powered diet plans, track progress, and export
-          professional deliverables — all in one clean workspace.
-        </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/dashboard" className="primary-btn" style={{ marginTop: 0 }}>
-            Open Dashboard
-          </Link>
-          <Link href="/login" className="ghost-btn">
-            Login
-          </Link>
+    <div className="page-content" style={{ maxWidth: 800, margin: "0 auto" }}>
+      <section className="hero-banner" style={{ textAlign: "center", padding: "var(--space-12) var(--space-8)" }}>
+        <div className="hero-content">
+          <span className="badge badge-blue" style={{ margin: "0 auto var(--space-4)", display: "inline-flex" }}>
+            FitAI Coach · Premium trainer workspace
+          </span>
+          <h1 className="hero-title" style={{ fontSize: "clamp(28px, 5vw, 48px)", maxWidth: 640, margin: "0 auto var(--space-4)" }}>
+            The intelligent nutrition dashboard for elite personal trainers
+          </h1>
+          <p className="hero-subtitle" style={{ maxWidth: 540, margin: "0 auto var(--space-8)", fontSize: 17 }}>
+            Manage clients, generate AI-powered diet plans, track progress, and export
+            professional deliverables — all in one clean workspace.
+          </p>
+          <div className="hero-actions" style={{ justifyContent: "center" }}>
+            <Link href="/dashboard" className="hero-cta">
+              Open Dashboard <ArrowRight size={16} />
+            </Link>
+            <Link href="/login" className="hero-cta-secondary">
+              Login
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="stats-grid">
+      <section className="stats-grid" style={{ marginTop: "var(--space-6)" }}>
         {[
-          ["128", "Total Clients", "badge"],
-          ["94", "Active Plans", "badge-blue"],
-          ["₹1.84L", "Monthly Revenue", "badge"],
-          ["87%", "Success Rate", "badge-blue"],
-        ].map(([val, label, cls]) => (
-          <div key={label} className="stat-card" style={{ textAlign: "center" }}>
-            <div className="kpi">{val}</div>
-            <p className="subtle" style={{ marginTop: 6 }}>{label}</p>
+          { val: "128", label: "Total Clients" },
+          { val: "94", label: "Active Plans" },
+          { val: "₹1.84L", label: "Monthly Revenue" },
+          { val: "87%", label: "Success Rate" },
+        ].map((item) => (
+          <div key={item.label} className="stat-card" style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{item.val}</div>
+            <div className="text-sm text-muted" style={{ margin: 0 }}>{item.label}</div>
           </div>
         ))}
       </section>

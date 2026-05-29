@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Settings, Bell, CreditCard, Loader2, Check } from "lucide-react";
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
@@ -25,68 +26,97 @@ export default function SettingsPage() {
 
   async function handleSave() {
     setSaving(true); setSaved(false);
-    const token = localStorage.getItem("fitai_token");
-    // Note: backend doesn't have a PUT /auth/me endpoint yet — this is a placeholder for when it does
     await new Promise(r => setTimeout(r, 600));
     setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
 
-  if (loading) return <div className="stack"><p className="subtle">Loading...</p></div>;
+  if (loading) {
+    return <div className="page-content">
+      <div className="skeleton" style={{ width: "100%", height: 400, borderRadius: "var(--radius-xl)" }} />
+    </div>;
+  }
 
   return (
-    <div className="stack">
-      <div style={{ marginBottom: 4 }}>
-        <p className="muted-label">Account</p>
-        <h2 className="section-title">Settings</h2>
-      </div>
-      <div className="settings-card">
-        <h3 style={{ margin: "0 0 20px", fontSize: 17, fontWeight: 600 }}>Profile</h3>
-        <div className="form-grid">
-          <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6e6e73", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Full Name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6e6e73", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-          </div>
+    <div className="page-content">
+      <section className="hero-banner" style={{ paddingBottom: "var(--space-8)" }}>
+        <div className="hero-content">
+          <p className="hero-greeting">Account</p>
+          <h1 className="hero-title">Settings</h1>
+          <p className="hero-subtitle">Manage your profile, notifications, and billing.</p>
         </div>
-        <button onClick={handleSave} disabled={saving} className="primary-btn" style={{ marginTop: 18 }}>
-          {saving ? 'Saving...' : saved ? 'Saved ✓' : 'Save Profile'}
-        </button>
-      </div>
-      <div className="settings-card">
-        <h3 style={{ margin: "0 0 20px", fontSize: 17, fontWeight: 600 }}>Notifications</h3>
-        <div className="form-grid">
-          {[
-            ["Client updates email", "On"],
-            ["Plan reminders", "On"],
-          ].map(([label, val]) => (
-            <div key={label}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6e6e73", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</label>
-              <select defaultValue={val} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1px solid rgba(0,0,0,0.12)', background: '#f5f5f7', fontSize: 14, color: '#1d1d1f' }}>
-                <option>On</option>
-                <option>Off</option>
-              </select>
+      </section>
+
+      <section className="section-grid">
+        {/* Profile */}
+        <div className="panel">
+          <div className="panel-header">
+            <h2 className="panel-title"><Settings size={16} /> Profile</h2>
+          </div>
+          <div className="panel-body">
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="input-label">Full Name</label>
+                <input className="input-field" type="text" value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="input-label">Email</label>
+                <input className="input-field" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+              </div>
             </div>
-          ))}
-        </div>
-        <button className="primary-btn" style={{ marginTop: 18 }}>Save Notifications</button>
-      </div>
-      <div className="settings-card">
-        <h3 style={{ margin: "0 0 20px", fontSize: 17, fontWeight: 600 }}>Billing</h3>
-        <div className="form-grid">
-          <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6e6e73", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Current plan</label>
-            <input type="text" defaultValue="Pro — ₹999/month" disabled />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6e6e73", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Next billing</label>
-            <input type="text" defaultValue="June 1, 2026" disabled />
+            <button onClick={handleSave} disabled={saving} className="btn btn-primary" style={{ marginTop: 18 }}>
+              {saving ? <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> : saved ? <Check size={14} /> : null}
+              {saving ? " Saving..." : saved ? " Saved" : "Save Profile"}
+            </button>
           </div>
         </div>
-      </div>
+
+        {/* Notifications */}
+        <div className="panel">
+          <div className="panel-header">
+            <h2 className="panel-title"><Bell size={16} /> Notifications</h2>
+          </div>
+          <div className="panel-body">
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="input-label">Client updates email</label>
+                <select className="input-field" defaultValue="On">
+                  <option>On</option>
+                  <option>Off</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="input-label">Plan reminders</label>
+                <select className="input-field" defaultValue="On">
+                  <option>On</option>
+                  <option>Off</option>
+                </select>
+              </div>
+            </div>
+            <button className="btn btn-primary" style={{ marginTop: 18 }}>Save Notifications</button>
+          </div>
+        </div>
+
+        {/* Billing */}
+        <div className="panel">
+          <div className="panel-header">
+            <h2 className="panel-title"><CreditCard size={16} /> Billing</h2>
+          </div>
+          <div className="panel-body">
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="input-label">Current plan</label>
+                <input className="input-field" type="text" defaultValue="Pro — ₹999/month" disabled />
+              </div>
+              <div className="form-group">
+                <label className="input-label">Next billing</label>
+                <input className="input-field" type="text" defaultValue="June 1, 2026" disabled />
+              </div>
+            </div>
+            <button className="btn btn-ghost" style={{ marginTop: 18 }} disabled>Manage Billing →</button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
