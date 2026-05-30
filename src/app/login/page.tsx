@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Sparkles, Zap, TrendingUp, Target } from "lucide-react";
+import { api } from "../../lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,20 +16,11 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true); setError("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem("fitai_token", data.token);
-        router.push("/dashboard");
-      } else {
-        setError(data.message || "Invalid credentials. Try admin@fitpro.com / fitpro123");
-      }
-    } catch {
-      setError("Connection failed. Is the backend running?");
+      const data = await api.auth.login(email, password);
+      localStorage.setItem("fitai_token", data.token);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials. Try admin@fitpro.com / fitpro123");
     }
     setLoading(false);
   }
