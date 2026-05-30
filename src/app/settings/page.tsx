@@ -1,122 +1,82 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { Settings, Bell, CreditCard, Loader2, Check } from "lucide-react";
+'use client';
 
 export default function SettingsPage() {
-  const [user, setUser] = useState<any>(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("fitai_token");
-    if (!token) { setLoading(false); return; }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(r => r.json()).then((d) => {
-      const u = d.user || d;
-      setUser(u);
-      setName(u.name || "");
-      setEmail(u.email || "");
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
-
-  async function handleSave() {
-    setSaving(true); setSaved(false);
-    await new Promise(r => setTimeout(r, 600));
-    setSaving(false); setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  }
-
-  if (loading) {
-    return <div className="page-content">
-      <div className="skeleton" style={{ width: "100%", height: 400, borderRadius: "var(--radius-xl)" }} />
-    </div>;
-  }
-
   return (
-    <div className="page-content">
-      <section className="hero-banner" style={{ paddingBottom: "var(--space-8)" }}>
-        <div className="hero-content">
-          <p className="hero-greeting">Account</p>
-          <h1 className="hero-title">Settings</h1>
-          <p className="hero-subtitle">Manage your profile, notifications, and billing.</p>
-        </div>
-      </section>
+    <div className="page-content animate-slide-in">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
+        Settings
+      </h1>
 
-      <section className="section-grid">
+      <div className="space-y-6 max-w-3xl">
         {/* Profile */}
-        <div className="panel">
-          <div className="panel-header">
-            <h2 className="panel-title"><Settings size={16} /> Profile</h2>
-          </div>
-          <div className="panel-body">
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="input-label">Full Name</label>
-                <input className="input-field" type="text" value={name} onChange={e => setName(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="input-label">Email</label>
-                <input className="input-field" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-              </div>
+        <div className="card p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Profile</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="input-label">Full Name</label>
+              <input className="input-field" defaultValue="Dr. Arjun Mehta" />
             </div>
-            <button onClick={handleSave} disabled={saving} className="btn btn-primary" style={{ marginTop: 18 }}>
-              {saving ? <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> : saved ? <Check size={14} /> : null}
-              {saving ? " Saving..." : saved ? " Saved" : "Save Profile"}
+            <div>
+              <label className="input-label">Email</label>
+              <input className="input-field" defaultValue="arjun@aifitness.in" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="input-label">Bio</label>
+              <textarea
+                className="input-field min-h-[80px]"
+                defaultValue="Senior Fitness Coach with 10+ years of experience in strength training and sports nutrition. CSCS certified."
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button className="btn btn-primary">Save Changes</button>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="card p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Preferences</h3>
+          <div className="space-y-4">
+            {[
+              { label: 'Email Notifications', desc: 'Receive updates when plans are generated or delivered', on: true },
+              { label: 'WhatsApp Delivery', desc: 'Enable WhatsApp as delivery channel', on: false },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{item.label}</div>
+                  <div className="text-xs text-gray-500">{item.desc}</div>
+                </div>
+                <div className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${item.on ? 'bg-blue-600' : 'bg-gray-200'}`}>
+                  <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-all ${item.on ? 'right-1' : 'left-1'}`} />
+                </div>
+              </div>
+            ))}
+            <div>
+              <label className="input-label">Default Plan Duration</label>
+              <select className="input-field" defaultValue="12">
+                <option value="4">4 weeks</option>
+                <option value="8">8 weeks</option>
+                <option value="12">12 weeks</option>
+                <option value="16">16 weeks</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="card p-6 border-red-200">
+          <h3 className="text-base font-semibold text-red-600 mb-4">Danger Zone</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Export all your client data or permanently delete your account. These actions cannot be undone.
+          </p>
+          <div className="flex items-center gap-3">
+            <button className="btn btn-secondary">Export Data</button>
+            <button className="btn text-red-600 bg-red-50 hover:bg-red-100 border border-red-200">
+              Delete Account
             </button>
           </div>
         </div>
-
-        {/* Notifications */}
-        <div className="panel">
-          <div className="panel-header">
-            <h2 className="panel-title"><Bell size={16} /> Notifications</h2>
-          </div>
-          <div className="panel-body">
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="input-label">Client updates email</label>
-                <select className="input-field" defaultValue="On">
-                  <option>On</option>
-                  <option>Off</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="input-label">Plan reminders</label>
-                <select className="input-field" defaultValue="On">
-                  <option>On</option>
-                  <option>Off</option>
-                </select>
-              </div>
-            </div>
-            <button className="btn btn-primary" style={{ marginTop: 18 }}>Save Notifications</button>
-          </div>
-        </div>
-
-        {/* Billing */}
-        <div className="panel">
-          <div className="panel-header">
-            <h2 className="panel-title"><CreditCard size={16} /> Billing</h2>
-          </div>
-          <div className="panel-body">
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="input-label">Current plan</label>
-                <input className="input-field" type="text" defaultValue="Pro — ₹999/month" disabled />
-              </div>
-              <div className="form-group">
-                <label className="input-label">Next billing</label>
-                <input className="input-field" type="text" defaultValue="June 1, 2026" disabled />
-              </div>
-            </div>
-            <button className="btn btn-ghost" style={{ marginTop: 18 }} disabled>Manage Billing →</button>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

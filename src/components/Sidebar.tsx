@@ -1,82 +1,59 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, ClipboardCheck, BarChart3, MessageSquare, Settings,
-  Zap, Bell, Search, Sparkles,
-} from "lucide-react";
+  LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, Dumbbell,
+} from 'lucide-react';
+import { MOCK_TRAINER } from '../lib/mock-data';
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/clients", label: "Clients", icon: Users },
-  { href: "/diet-plans", label: "AI Plans", icon: ClipboardCheck },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "#", label: "Messages", icon: MessageSquare, badge: "3" },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/clients', label: 'Clients', icon: Users },
+  { href: '/diet-plans', label: 'Plans', icon: ClipboardList },
+  { href: '/analytics', label: 'Progress', icon: TrendingUp },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { document.documentElement.style.setProperty("--sidebar-w", collapsed ? "72px" : "240px"); }, [collapsed]);
-
-  if (!mounted) return null;
 
   return (
-    <>
-      <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
-        <Link href="/" className="brand">
-          <div className="brand-mark">
-            <Zap size={18} strokeWidth={2.5} />
-          </div>
-          {!collapsed && (
-            <div className="brand-text">
-              <p className="brand-kicker">FitAI</p>
-              <h2>Coach</h2>
-            </div>
-          )}
-        </Link>
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <div className="sidebar-logo-icon">
+          <Dumbbell size={18} />
+        </div>
+        <div className="sidebar-logo-text">
+          <div className="sidebar-logo-title">AI Fitness</div>
+          <div className="sidebar-logo-sub">Prescription System</div>
+        </div>
+      </div>
 
-        <nav className="nav">
-          {navItems.map(({ href, label, icon: Icon, badge }) => {
-            const active = pathname === href || (href !== "/" && pathname.startsWith(href));
-            return (
-              <Link key={label} href={href} className={`nav-item${active ? " active" : ""}`}>
-                <Icon size={20} strokeWidth={active ? 2 : 1.5} className="nav-icon" />
-                {!collapsed && <span className="nav-label">{label}</span>}
-                {badge && !collapsed && <span className="nav-badge">{badge}</span>}
-                {badge && collapsed && <span className="nav-badge" style={{ position: "absolute", top: 4, right: 4, minWidth: 14, padding: "0 4px", fontSize: 9 }}>{badge}</span>}
-              </Link>
-            );
-          })}
-        </nav>
+      <nav className="sidebar-nav">
+        {navItems.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`sidebar-nav-item${active ? ' active' : ''}`}
+              aria-current={active ? 'page' : undefined}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
-        {!collapsed && (
-          <div className="sidebar-footer">
-            <div className="sidebar-avatar">AK</div>
-            <div className="sidebar-user-info">
-              <p className="sidebar-user-name">Abhishek</p>
-              <div className="ai-status">
-                <span className="ai-dot" />
-                AI Active
-              </div>
-            </div>
-          </div>
-        )}
-      </aside>
-
-      <button
-        className="sidebar-toggle"
-        onClick={() => setCollapsed((c) => !c)}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        style={{ display: "flex" }}
-      >
-        {collapsed ? "▶" : "◀"}
-      </button>
-    </>
+      <div className="sidebar-footer">
+        <div className="sidebar-avatar">{MOCK_TRAINER.initials}</div>
+        <div>
+          <div className="sidebar-user-name">{MOCK_TRAINER.name}</div>
+          <div className="sidebar-user-role">{MOCK_TRAINER.title}</div>
+        </div>
+      </div>
+    </aside>
   );
 }

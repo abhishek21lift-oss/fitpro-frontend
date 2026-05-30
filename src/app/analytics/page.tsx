@@ -1,139 +1,186 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Users, Salad, DollarSign, TrendingUp, UserPlus, BarChart3, Brain } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useState } from 'react';
+import {
+  Activity, Camera, CheckCircle, Clock,
+} from 'lucide-react';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts';
+import { MOCK_CLIENTS } from '../../lib/mock-data';
 
-const trendData = Array.from({ length: 12 }, (_, i) => ({ v: 5 + Math.floor(Math.random() * 20) }));
-
-export default function AnalyticsPage() {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("fitai_token");
-    if (!token) { setLoading(false); return; }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(r => r.json()).then(setStats).catch(() => {}).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+function CustomTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
     return (
-      <div className="page-content">
-        <div className="skeleton" style={{ width: "100%", height: 200, borderRadius: "var(--radius-xl)" }} />
+      <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-lg">
+        <p className="text-xs text-gray-500 mb-1">{label}</p>
+        <p className="text-sm font-bold text-gray-900">
+          {payload[0].value}{payload[0].name === 'val' ? ' kg' : ' %'}
+        </p>
       </div>
     );
   }
+  return null;
+}
 
-  const items = [
-    { label: "Total Clients", value: String(stats?.totalClients ?? 0), note: "All registered clients", icon: Users, color: "blue" },
-    { label: "Active Plans", value: String(stats?.activePlans ?? 0), note: "Generated diet plans", icon: Salad, color: "emerald" },
-    { label: "Revenue", value: `₹${(stats?.revenue || 0).toLocaleString('en-IN')}`, note: "Estimated monthly", icon: DollarSign, color: "purple" },
-    { label: "Success Rate", value: stats ? `${stats.successRate || 0}%` : "0%", note: "Clients with plans", icon: TrendingUp, color: "orange" },
+export default function AnalyticsPage() {
+  const [selectedId, setSelectedId] = useState(MOCK_CLIENTS[0].id);
+  const client = MOCK_CLIENTS.find(c => c.id === selectedId) || MOCK_CLIENTS[0];
+  const p = client.progress;
+
+  const metrics = [
+    { label: 'Current Weight', value: p.weight.length > 0 ? `${p.weight[p.weight.length - 1].val} kg` : '—', color: '#2563EB' },
+    { label: 'Body Fat', value: p.bodyFat.length > 0 ? `${p.bodyFat[p.bodyFat.length - 1].val}%` : '—', color: '#8B5CF6' },
+    { label: 'Adherence', value: p.adherence.length > 0 ? `${p.adherence[p.adherence.length - 1].val}%` : '—', color: '#22C55E' },
+    { label: 'Avg Water', value: p.water.length > 0 ? `${p.water[p.water.length - 1].val}L` : '—', color: '#06B6D4' },
   ];
 
   return (
-    <div className="page-content">
-      <section className="hero-banner" style={{ paddingBottom: "var(--space-8)" }}>
-        <div className="hero-content">
-          <p className="hero-greeting">Analytics</p>
-          <h1 className="hero-title">Performance overview</h1>
-          <p className="hero-subtitle">Real-time metrics for your coaching business.</p>
+    <div className="page-content animate-slide-in">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: 'var(--font-heading)' }}>
+            Progress Tracking
+          </h1>
+          <p className="text-sm text-gray-500">Monitor client progress over time</p>
         </div>
-      </section>
+        <div className="flex items-center gap-3">
+          <select
+            className="input-field max-w-[200px]"
+            value={selectedId}
+            onChange={(e) => setSelectedId(Number(e.target.value))}
+          >
+            {MOCK_CLIENTS.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-      <section className="stats-grid">
-        {items.map((item) => (
-          <div key={item.label} className="stat-card">
-            <div className="stat-card-header">
-              <div className={`stat-icon ${item.color}`}><item.icon size={18} strokeWidth={1.5} /></div>
-              <span className="stat-trend up">↑ Live</span>
+      {/* Client header */}
+      <div className="card p-5 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-xl font-bold text-blue-600">
+            {client.initials}
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-gray-900">{client.name}</h2>
+              <span className="badge badge-success">Week {client.programWeek}</span>
+              <span className="badge badge-info">{client.goal}</span>
             </div>
-            <div className="stat-value">{item.value}</div>
-            <div className="stat-label">{item.label}</div>
-            <div className="stat-chart">
-              <ResponsiveContainer width="100%" height={32}>
-                <AreaChart data={trendData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id={`ag-${item.label}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={item.color === "blue" ? "#2563EB" : item.color === "emerald" ? "#10B981" : item.color === "purple" ? "#8B5CF6" : "#F59E0B"} stopOpacity={0.2} />
-                      <stop offset="100%" stopColor={item.color === "blue" ? "#2563EB" : item.color === "emerald" ? "#10B981" : item.color === "purple" ? "#8B5CF6" : "#F59E0B"} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Tooltip contentStyle={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 13 }} />
-                  <Area type="monotone" dataKey="v" stroke={item.color === "blue" ? "#2563EB" : item.color === "emerald" ? "#10B981" : item.color === "purple" ? "#8B5CF6" : "#F59E0B"} strokeWidth={2} fill={`url(#ag-${item.label})`} dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {client.age}{client.gender} · {client.assessment.height}cm · {client.assessment.weight}kg
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        {metrics.map((m, i) => (
+          <div key={i} className="card p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${m.color}15` }}>
+                <Activity size={15} style={{ color: m.color }} />
+              </div>
             </div>
-            <span style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8, display: "block" }}>{item.note}</span>
+            <div className="text-xl font-bold text-gray-900">{m.value}</div>
+            <div className="text-xs text-gray-500">{m.label}</div>
           </div>
         ))}
-      </section>
+      </div>
 
-      {stats?.totalClients === 0 && (
-        <div className="empty-state">
-          <div className="empty-state-icon"><BarChart3 size={28} /></div>
-          <h2 className="empty-state-title">No data yet</h2>
-          <p className="empty-state-text">Add clients and generate plans to see your analytics populate.</p>
-          <Link href="/clients/add" className="btn btn-primary">
-            <UserPlus size={16} /> Add Client
-          </Link>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Weight */}
+        <div className="card p-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Weight Trend</h3>
+          <div style={{ height: 240 }}>
+            {p.weight.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={p.weight} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="val" stroke="#2563EB" strokeWidth={2.5} dot={{ fill: '#2563EB', r: 4 }} activeDot={{ r: 6 }} name="val" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400 text-sm">No data yet</div>
+            )}
+          </div>
         </div>
-      )}
 
-      {stats?.totalClients > 0 && (
-        <section className="section-grid">
-          <div className="panel">
-            <div className="panel-header">
-              <h2 className="panel-title">Quick actions</h2>
-            </div>
-            <div className="panel-body">
-              <div className="quick-actions">
-                <Link href="/clients/add" className="quick-action">
-                  <UserPlus size={24} className="quick-action-icon" />
-                  Add New Client
-                </Link>
-                <Link href="/diet-plans" className="quick-action">
-                  <Salad size={24} className="quick-action-icon" />
-                  View Diet Plans
-                </Link>
-                <Link href="/clients" className="quick-action">
-                  <Users size={24} className="quick-action-icon" />
-                  All Clients
-                </Link>
-              </div>
-            </div>
+        {/* Body Fat */}
+        <div className="card p-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Body Fat % Trend</h3>
+          <div style={{ height: 240 }}>
+            {p.bodyFat.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={p.bodyFat} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="val" stroke="#8B5CF6" strokeWidth={2.5} dot={{ fill: '#8B5CF6', r: 4 }} activeDot={{ r: 6 }} name="val" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400 text-sm">No data yet</div>
+            )}
           </div>
+        </div>
+      </div>
 
-          <div className="panel">
-            <div className="panel-header">
-              <h2 className="panel-title">Insights</h2>
-            </div>
-            <div className="panel-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div className="ai-insight" style={{ margin: 0, padding: "var(--space-4)" }}>
-                <Brain size={20} style={{ color: "var(--blue)", flexShrink: 0 }} />
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0, color: "var(--text)" }}>Plan Coverage</p>
-                  <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "2px 0 0" }}>
-                    {stats?.activePlans} of {stats?.totalClients} clients have active diet plans.
-                  </p>
+      {/* Progress photos + logs */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="card p-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Progress Photos</h3>
+          <div className="space-y-3">
+            {['Before (Start)', 'Current (Week 4)'].map((label, i) => (
+              <div key={i} className="bg-gray-50 rounded-xl overflow-hidden">
+                <div className="h-36 bg-gray-200 flex items-center justify-center">
+                  <Camera size={24} className="text-gray-400" />
                 </div>
+                <div className="p-2 text-center text-xs font-medium text-gray-600">{label}</div>
               </div>
-              <div className="ai-insight" style={{ margin: 0, padding: "var(--space-4)" }}>
-                <DollarSign size={20} style={{ color: "var(--emerald)", flexShrink: 0 }} />
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0, color: "var(--text)" }}>Average Revenue</p>
-                  <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "2px 0 0" }}>
-                    ₹{stats?.totalClients ? Math.round((stats?.revenue || 0) / stats.totalClients).toLocaleString('en-IN') : 0} per client
-                  </p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+
+        <div className="lg:col-span-2 card p-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Workout Logs</h3>
+          {client.progress.logs && client.progress.logs.length > 0 ? (
+            <div className="space-y-2">
+              {client.progress.logs.map((log, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${log.adherence >= 100 ? 'bg-green-50' : 'bg-amber-50'}`}>
+                    {log.adherence >= 100
+                      ? <CheckCircle size={16} className="text-green-600" />
+                      : <Clock size={16} className="text-amber-600" />
+                    }
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">{log.workout}</span>
+                      <span className={`badge ${log.adherence >= 100 ? 'badge-success' : 'badge-warning'} text-xs`}>
+                        {log.adherence}%
+                      </span>
+                    </div>
+                    {log.notes && <p className="text-xs text-gray-500 mt-0.5">{log.notes}</p>}
+                    <p className="text-xs text-gray-400 mt-1">{log.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 text-sm">No workout logs yet</div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
