@@ -1,375 +1,427 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users, ClipboardList, FileText, TrendingUp,
-  Activity, Search, Bell, Bot, MessageCircle, Sparkles,
-  Clock, CheckCircle, AlertCircle, Dumbbell, BarChart3,
-  ArrowUpRight, ArrowDownRight, ChevronRight, Plus, Eye,
+  Activity, Search, Bell, Sparkles,
+  CheckCircle, BarChart3,
+  ArrowUpRight, ArrowDownRight, ChevronRight, Flame,
 } from 'lucide-react';
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
-  ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
-import { MOCK_CLIENTS, MOCK_ACTIVITY, getGreeting, formatDate } from '../../lib/mock-data';
+import {
+  MOCK_CLIENTS, MOCK_ACTIVITY, MOCK_TRAINER,
+  getGreeting, formatDate, getInitialsColor,
+} from '../../lib/mock-data';
 
 /* ─── Sparkline ─── */
-const SparklineChart = ({ data, color = '#2563EB' }: { data: number[]; color?: string }) => {
-  const w = 72, h = 36;
-  const min = Math.min(...data), max = Math.max(...data), range = max - min || 1;
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
+function Sparkline({ data, color = '#2563EB', height = 40 }: { data: number[]; color?: string; height?: number }) {
+  if (!data || data.length < 2) return null;
+  const w = 80;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${height - ((v - min) / range) * (height - 4) - 2}`).join(' ');
   return (
-    <svg width={w} height={h} className="shrink-0">
-      <defs>
-        <linearGradient id={`sg-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`M${pts}`} fill="none" stroke={color} strokeWidth="1.5" />
-      <path d={`M${pts} L${w},${h} L0,${h} Z`} fill={`url(#sg-${color.replace('#','')})`} />
+    <svg width={w} height={height} viewBox={`0 0 ${w} ${height}`} style={{ flexShrink: 0 }}>
+      <path d={`M${pts}`} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts.split(' ').pop()!.split(',')[0]} cy={pts.split(' ').pop()!.split(',')[1]} r="2" fill={color} />
     </svg>
   );
-};
+}
 
-/* ─── Animated Counter ─── */
-const AnimatedCounter = ({ value, suffix = '', decimals = 0 }: { value: number; suffix?: string; decimals?: number }) => {
-  const [display, setDisplay] = useState(0);
-  const start = useRef(0);
-  const animate = useCallback((ts: number) => {
-    if (!start.current) start.current = ts;
-    const p = Math.min((ts - start.current) / 800, 1);
-    const e = 1 - Math.pow(1 - p, 3);
-    setDisplay(Math.round(e * value * 10 ** decimals) / 10 ** decimals);
-    if (p < 1) requestAnimationFrame(animate);
-  }, [value, decimals]);
-  useEffect(() => { start.current = 0; requestAnimationFrame(animate); }, [animate]);
-  return <>{display.toFixed(decimals)}{suffix}</>;
-};
-
-/* ─── Section header ─── */
-const SectionHeader = ({ title, action }: { title: string; action?: { label: string; href?: string } }) => (
-  <div className="flex items-center justify-between mb-5">
-    <h2 className="text-base font-semibold text-gray-900">{title}</h2>
-    {action && (
-      <Link href={action.href || '#'} className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
-        {action.label} <ChevronRight size={13} />
-      </Link>
-    )}
-  </div>
-);
-
-/* ─── Chart Tooltip ─── */
-const ChartTip = ({ active, payload, label }: any) => {
-  if (!active || !payload) return null;
+/* ─── Mini Progress Ring ─── */
+function ProgressRing({ pct, size = 36, stroke = 3, color = '#2563EB' }: { pct: number; size?: number; stroke?: number; color?: string }) {
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
   return (
-    <div className="bg-white/90 backdrop-blur-md border border-white/50 rounded-xl px-3 py-2 shadow-lg text-xs">
-      <p className="text-gray-500 mb-0.5">{label}</p>
-      {payload.map((p: any, i: number) => (
-        <p key={i} className="font-semibold" style={{ color: p.color }}>{p.value}{p.dataKey === 'val' ? ' kg' : ''}</p>
-      ))}
+    <svg width={size} height={size} style={{ flexShrink: 0 }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+    </svg>
+  );
+}
+
+/* ─── KPI Card ─── */
+function KpiCard({ icon: Icon, label, value, prev, unit, color, sparkline }: {
+  icon: any; label: string; value: string; prev: number; unit: string; color: string; sparkline: number[];
+}) {
+  const change = ((prev - (prev * 0.97)) / prev) * 100;
+  const isUp = change > 0;
+  return (
+    <div className="card card-hover" style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 12,
+          background: `linear-gradient(135deg, ${color}15, ${color}05)`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color, flexShrink: 0,
+        }}>
+          <Icon size={18} />
+        </div>
+        <Sparkline data={sparkline} color={color} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>{label}</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.5px', color: 'var(--text)' }}>{value}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>{unit}</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: isUp ? '#059669' : '#DC2626' }}>
+        {isUp ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+        <span>{Math.abs(change).toFixed(1)}%</span>
+        <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: 2 }}>vs last month</span>
+      </div>
     </div>
   );
-};
+}
 
-/* ─── MAIN ─── */
-export default function DashboardPage() {
-  const client = MOCK_CLIENTS[0];
-  const { weight, bodyFat } = client.progress;
-  const compliance = [
-    { w: 'W1', diet: 88, workout: 85 }, { w: 'W2', diet: 92, workout: 88 },
-    { w: 'W3', diet: 85, workout: 82 }, { w: 'W4', diet: 90, workout: 87 },
+/* ─── AI Insight ─── */
+function AiInsight({ text }: { text: string }) {
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      padding: '6px 14px 6px 10px', borderRadius: 20,
+      background: 'linear-gradient(135deg, rgba(37,99,235,0.06), rgba(79,70,229,0.04))',
+      border: '1px solid rgba(37,99,235,0.08)',
+      fontSize: 12, fontWeight: 500, color: 'var(--accent)',
+    }}>
+      <Sparkles size={12} />
+      {text}
+    </div>
+  );
+}
+
+/* ─── Counter ─── */
+function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const [display, setDisplay] = useState(0);
+  const ref = useRef<number>(0);
+  useEffect(() => {
+    const start = performance.now();
+    const dur = 1000;
+    const from = ref.current;
+    const to = value;
+    function tick(now: number) {
+      const t = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      const cur = Math.round(from + (to - from) * ease);
+      setDisplay(cur);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    ref.current = to;
+    requestAnimationFrame(tick);
+  }, [value]);
+  return <>{display}{suffix}</>;
+}
+
+/* ─── Compliance Donut ─── */
+const complianceData = [
+  { name: 'On Track', value: 76, color: '#10B981' },
+  { name: 'Missed', value: 12, color: '#EF4444' },
+  { name: 'Partial', value: 12, color: '#F59E0B' },
+];
+
+/* ─── Activity Icon ─── */
+function ActIcon({ type }: { type: string }) {
+  const map: Record<string, [any, string]> = {
+    assessment: [ClipboardList, '#2563EB'],
+    plan: [FileText, '#8B5CF6'],
+    delivery: [CheckCircle, '#10B981'],
+    progress: [TrendingUp, '#F59E0B'],
+  };
+  const [Icon, color] = map[type] || [Activity, '#6B7280'];
+  return (
+    <div style={{
+      width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+      background: `linear-gradient(135deg, ${color}12, ${color}06)`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', color,
+    }}>
+      <Icon size={14} />
+    </div>
+  );
+}
+
+/* ─── Tools ─── */
+const insightTexts = [
+  "Priya's adherence dropped to 85% — consider a diet check-in",
+  "Rohit is progressing well on his strength program",
+  "Vikram's weight loss is on track at -0.8kg/week",
+  "Neha's new program starts next week — prep ready?",
+];
+const randomInsight = insightTexts[Math.floor(Math.random() * insightTexts.length)];
+
+export default function Dashboard() {
+  const [time, setTime] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  useEffect(() => {
+    const update = () => setTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+    update();
+    const id = setInterval(update, 10000);
+    return () => clearInterval(id);
+  }, []);
+
+  const activeClients = MOCK_CLIENTS.filter(c => c.status === 'active');
+  const totalSessions = activeClients.reduce((a, c) => a + c.programWeek, 0);
+  const avgAdherence = 88;
+
+  const metrics = [
+    { icon: Users, label: 'Active Clients', value: `${activeClients.length}`, prev: 5, unit: '', color: '#2563EB', sparkline: [3, 4, 3, 5, 4, 6, 5, 7, 6] },
+    { icon: ClipboardList, label: 'Total Programs', value: `${MOCK_CLIENTS.length}`, prev: 5, unit: '', color: '#8B5CF6', sparkline: [2, 4, 3, 5, 4, 6, 5, 6, 7] },
+    { icon: TrendingUp, label: 'Avg. Adherence', value: `${avgAdherence}`, prev: 85, unit: '%', color: '#10B981', sparkline: [82, 85, 84, 86, 88, 87, 89, 90, 88] },
+    { icon: Flame, label: 'Weekly Sessions', value: `${totalSessions}`, prev: 22, unit: '', color: '#F59E0B', sparkline: [18, 20, 22, 21, 24, 23, 25, 24, totalSessions] },
   ];
-  const engagement = [
-    { w: 'W1', sessions: 4, meals: 28 }, { w: 'W2', sessions: 5, meals: 30 },
-    { w: 'W3', sessions: 3, meals: 26 }, { w: 'W4', sessions: 4, meals: 29 },
-  ];
-  const priorityClients = MOCK_CLIENTS.filter(c => c.status !== 'delivered').slice(0, 4);
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  const insights = [
-    { label: 'Follow-ups needed', value: '12 clients', color: 'bg-amber-50 text-amber-600', badge: 'badge-warning', badgeLabel: 'Action', icon: Clock },
-    { label: 'Plans ready for approval', value: '5 plans', color: 'bg-blue-50 text-blue-600', badge: 'badge-info', badgeLabel: 'Ready', icon: FileText },
-    { label: 'At risk of dropping out', value: '3 clients', color: 'bg-red-50 text-red-600', badge: 'badge-danger', badgeLabel: 'Urgent', icon: AlertCircle },
-    { label: 'Compliance increased', value: '7% this week', color: 'bg-emerald-50 text-emerald-600', badge: 'badge-success', badgeLabel: 'Improved', icon: TrendingUp },
-  ];
+
+  const weightData = MOCK_CLIENTS[0].progress.weight;
+  const chartData = weightData.map(d => ({ name: d.week.replace('Week ', 'W'), weight: d.val }));
 
   return (
-    <div className="page-content">
-      {/* ═══ HEADER ═══ */}
-      <header className="flex items-start justify-between mb-8 animate-slide-up">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-heading)' }}>
-              {getGreeting()}, Dr. Mehta
+    <div className="page-content" style={{ animation: 'slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both' }}>
+      {/* ─── Header ─── */}
+      <header style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, gap: 24, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 280 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
+            <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.3px' }}>
+              {getGreeting()}, {MOCK_TRAINER.name.split(' ')[0]}
             </h1>
-            <span className="badge badge-info text-xs gap-1">
-              <Sparkles size={10} /> AI Active
-            </span>
+            <div style={{
+              padding: '3px 12px 3px 10px', borderRadius: 20,
+              background: 'linear-gradient(135deg, rgba(37,99,235,0.07), rgba(79,70,229,0.04))',
+              border: '1px solid rgba(37,99,235,0.08)',
+              fontSize: 12, fontWeight: 600, color: 'var(--accent)',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}>
+              <Sparkles size={12} />
+              {randomInsight}
+            </div>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-500">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-muted)', fontSize: 13 }}>
             <span>{formatDate()}</span>
-            <span className="w-1 h-1 rounded-full bg-gray-300" />
-            <span>{timeStr}</span>
-            <span className="w-1 h-1 rounded-full bg-gray-300" />
-            <span className="flex items-center gap-1 text-emerald-600 font-medium">
-              <Activity size={13} /> 12 active today
-            </span>
+            <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--text-muted)' }} />
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{time}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2.5">
-          <div className="hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-white/50 rounded-xl px-3.5 py-2 shadow-sm">
-            <Search size={15} className="text-gray-400" />
-            <input className="bg-transparent border-none outline-none text-sm text-gray-700 w-48 placeholder:text-gray-400" placeholder="Search..." />
-            <kbd className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            position: 'relative', transition: 'all 0.2s',
+            width: searchFocused ? 280 : 200,
+          }}>
+            <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+            <input
+              type="text" placeholder="Search clients, plans..."
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              style={{
+                width: '100%', padding: '9px 14px 9px 36px', borderRadius: 12,
+                border: '1px solid rgba(0,0,0,0.04)', outline: 'none',
+                fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text)',
+                background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)',
+                transition: 'all 0.2s', WebkitBackdropFilter: 'blur(12px)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.9)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.04)'; e.currentTarget.style.background = 'rgba(255,255,255,0.75)' }}
+            />
           </div>
-          <button className="relative w-9 h-9 rounded-xl bg-white/80 backdrop-blur-sm border border-white/50 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:shadow-sm transition-all" aria-label="Notifications">
+
+          <button style={{
+            position: 'relative', width: 36, height: 36, borderRadius: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', color: 'var(--text-muted)',
+            transition: 'all 0.2s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.9)'; e.currentTarget.style.color = 'var(--text)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.7)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+          >
             <Bell size={16} />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-rose-500 ring-1 ring-white" />
+            <span style={{ position: 'absolute', top: 5, right: 5, width: 7, height: 7, borderRadius: '50%', background: 'var(--rose)', border: '2px solid white' }} />
           </button>
-          <button className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-sm" aria-label="AI Assistant">
-            <Bot size={16} />
-          </button>
-          <button className="w-9 h-9 rounded-xl bg-white/80 backdrop-blur-sm border border-white/50 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:shadow-sm transition-all" aria-label="Messages">
-            <MessageCircle size={16} />
-          </button>
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-sm cursor-pointer">
-            AM
-          </div>
+
+          <Link href="/analytics" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', gap: 6, fontSize: 13 }}>
+            <BarChart3 size={14} />
+            Analytics
+          </Link>
         </div>
       </header>
 
-      {/* ═══ KPI CARDS ═══ */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { icon: Users, label: 'Active Clients', value: 24, change: 12, color: '#2563EB', data: [18,20,19,22,21,23,24] },
-          { icon: ClipboardList, label: 'Plans Today', value: 6, color: '#8B5CF6', data: [2,4,3,5,4,6,6] },
-          { icon: FileText, label: 'Pending Review', value: 3, color: '#F59E0B', data: [5,4,6,3,4,3,3] },
-          { icon: TrendingUp, label: 'Avg Progress', value: 87, change: 5, color: '#10B981', suffix: '%', data: [72,75,78,80,82,85,87] },
-        ].map((k, i) => (
-          <div key={i} className="card card-hover p-5 animate-slide-up" style={{ animationDelay: `${i * 60}ms` }}>
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${k.color}12` }}>
-                <k.icon size={20} style={{ color: k.color }} />
-              </div>
-              {k.change !== undefined && (
-                <span className={`flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                  k.change >= 0 ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'
-                }`}>
-                  {k.change >= 0 ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-                  {Math.abs(k.change)}%
-                </span>
-              )}
-            </div>
-            <div className="flex items-end justify-between">
-              <div>
-                <div className="text-2xl font-bold text-gray-900 mb-0.5">
-                  <AnimatedCounter value={k.value} suffix={k.suffix || ''} />
-                </div>
-                <div className="text-sm text-gray-500">{k.label}</div>
-              </div>
-              <SparklineChart data={k.data} color={k.color} />
-            </div>
+      {/* ─── KPI Cards ─── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 28 }}>
+        {metrics.map((m, i) => (
+          <div key={i} style={{ animation: `slideUp 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 0.07}s both` }}>
+            <KpiCard {...m} />
           </div>
         ))}
-      </section>
+      </div>
 
-      {/* ═══ ANALYTICS + AI INSIGHTS ═══ */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
-        {/* Charts area */}
-        <div className="lg:col-span-2 space-y-5">
-          <SectionHeader title="Client Performance" action={{ label: 'View full report', href: '/analytics' }} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp size={14} className="text-blue-600" />
-                <h3 className="text-sm font-semibold text-gray-900">Weight Trend</h3>
-              </div>
-              <div style={{ height: 180 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={weight} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                    <defs><linearGradient id="wG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2563EB" stopOpacity={0.12} /><stop offset="100%" stopColor="#2563EB" stopOpacity={0} /></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
-                    <XAxis dataKey="week" tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} domain={['dataMin - 2', 'dataMax + 1']} />
-                    <Tooltip content={<ChartTip />} />
-                    <Area type="monotone" dataKey="val" stroke="#2563EB" strokeWidth={2} fill="url(#wG)" dot={{ fill: '#2563EB', r: 3, stroke: '#fff', strokeWidth: 2 }} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+      {/* ─── Analytics Row ─── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 20, marginBottom: 28 }}>
+        {/* Weight Trend */}
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Weight Trend</h2>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>Client: Priya Sharma • 8-week progression</p>
             </div>
-            <div className="card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Activity size={14} className="text-purple-600" />
-                <h3 className="text-sm font-semibold text-gray-900">Body Fat %</h3>
-              </div>
-              <div style={{ height: 180 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={bodyFat} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                    <defs><linearGradient id="bG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.12} /><stop offset="100%" stopColor="#8B5CF6" stopOpacity={0} /></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
-                    <XAxis dataKey="week" tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} domain={['dataMin - 2', 'dataMax + 1']} />
-                    <Tooltip content={<ChartTip />} />
-                    <Area type="monotone" dataKey="val" stroke="#8B5CF6" strokeWidth={2} fill="url(#bG)" dot={{ fill: '#8B5CF6', r: 3, stroke: '#fff', strokeWidth: 2 }} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            <div className="card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <CheckCircle size={14} className="text-emerald-600" />
-                <h3 className="text-sm font-semibold text-gray-900">Compliance Score</h3>
-              </div>
-              <div style={{ height: 160 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={compliance} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
-                    <XAxis dataKey="w" tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} domain={[70, 100]} />
-                    <Tooltip />
-                    <Bar dataKey="diet" fill="#2563EB" radius={[4,4,0,0]} barSize={10} />
-                    <Bar dataKey="workout" fill="#8B5CF6" radius={[4,4,0,0]} barSize={10} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            <div className="card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Activity size={14} className="text-amber-600" />
-                <h3 className="text-sm font-semibold text-gray-900">Weekly Engagement</h3>
-              </div>
-              <div style={{ height: 160 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={engagement} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
-                    <XAxis dataKey="w" tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="sessions" stroke="#F59E0B" strokeWidth={2} dot={{ fill: '#F59E0B', r: 3 }} />
-                    <Line type="monotone" dataKey="meals" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981', r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            <Link href="/analytics" style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              Full Report <ChevronRight size={12} />
+            </Link>
+          </div>
+          <div style={{ height: 240 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2563EB" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#2563EB" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} dy={8} />
+                <YAxis domain={['dataMin - 2', 'dataMax + 2']} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} dx={-4} />
+                <Tooltip
+                  contentStyle={{
+                    background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255,255,255,0.4)', borderRadius: 12,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '10px 14px',
+                  }}
+                  labelStyle={{ fontSize: 12, color: 'var(--text-muted)' }}
+                  itemStyle={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}
+                />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.02)" vertical={false} />
+                <Area type="monotone" dataKey="weight" stroke="#2563EB" strokeWidth={2} fill="url(#weightGrad)" dot={false} activeDot={{ r: 4, fill: '#2563EB', stroke: 'white', strokeWidth: 2 }} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* AI Insights */}
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-sm">
-                <Bot size={17} className="text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900">AI Insights</h3>
-                <p className="text-xs text-gray-400">Real-time recommendations</p>
-              </div>
+        {/* Compliance */}
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div>
+              <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Adherence</h2>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>Overall compliance rate</p>
             </div>
-            <Sparkles size={15} className="text-blue-500" />
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+              <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--text)' }}>76%</span>
+              <span style={{ fontSize: 11, color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <ArrowUpRight size={10} /> +3%
+              </span>
+            </div>
           </div>
-          <div className="space-y-2">
-            {insights.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
-                  <item.icon size={15} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                  <p className="text-xs text-gray-500">{item.value}</p>
-                </div>
-                <span className={`badge ${item.badge} text-xs shrink-0`}>{item.badgeLabel}</span>
+          <div style={{ height: 180 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={complianceData} cx="50%" cy="50%" innerRadius={48} outerRadius={68} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
+                  {complianceData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255,255,255,0.4)', borderRadius: 12,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '8px 12px',
+                  }}
+                  labelStyle={{ fontSize: 12, color: 'var(--text-muted)' }}
+                  itemStyle={{ fontSize: 13, fontWeight: 600 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 4 }}>
+            {complianceData.map(e => (
+              <div key={e.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: e.color }} />
+                {e.name}
+                <span style={{ fontWeight: 600, color: 'var(--text)' }}>{e.value}%</span>
               </div>
             ))}
           </div>
-          <button className="w-full mt-4 text-sm text-blue-600 bg-blue-50/50 hover:bg-blue-50 rounded-xl py-2.5 font-medium transition-colors flex items-center justify-center gap-1.5">
-            <Sparkles size={13} /> View All Recommendations
-          </button>
         </div>
-      </section>
+      </div>
 
-      {/* ═══ BOTTOM: ACTIVITY + CLIENTS ═══ */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 card p-5">
-          <SectionHeader title="Recent Activity" action={{ label: 'View all', href: '#' }} />
-          <div className="space-y-1">
-            {MOCK_ACTIVITY.map((a, i) => {
-              const iconMap: Record<string, any> = { assessment: ClipboardList, plan: FileText, delivery: CheckCircle, progress: TrendingUp };
-              const colorMap: Record<string, string> = { assessment: 'bg-blue-50 text-blue-600', plan: 'bg-purple-50 text-purple-600', delivery: 'bg-emerald-50 text-emerald-600', progress: 'bg-amber-50 text-amber-600' };
-              const Icon = iconMap[a.type] || Activity;
-              return (
-                <div key={i} className="flex items-start gap-3.5 p-3.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer group animate-slide-up" style={{ animationDelay: `${i * 40}ms` }}>
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${colorMap[a.type] || 'bg-gray-50 text-gray-500'} group-hover:scale-110 transition-transform`}>
-                    <Icon size={17} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-semibold text-sm text-gray-900">{a.client}</span>
-                      <span className={`badge ${
-                        a.type === 'delivery' ? 'badge-success' : a.type === 'progress' ? 'badge-info' : a.type === 'plan' ? 'badge-purple' : 'badge-info'
-                      } py-0.5 text-[10px]`}>{a.type}</span>
+      {/* ─── Bottom Section ─── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20 }}>
+        {/* Activity Feed */}
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Activity</h2>
+            <button style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', fontFamily: 'var(--font-sans)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            >View All</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {MOCK_ACTIVITY.map((a, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, animation: i === 0 ? 'slideUp 0.3s ease-out both' : undefined }}>
+                <ActIcon type={a.type} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{a.client}</span>
+                      <span style={{ fontSize: 13, color: 'var(--text-secondary)', marginLeft: 4 }}>{a.detail}</span>
                     </div>
-                    <p className="text-sm text-gray-500">{a.detail}</p>
-                    <p className="text-xs text-gray-400 mt-1">{a.time}</p>
                   </div>
-                  <ChevronRight size={15} className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 mt-1" />
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>{a.time}</div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Priority Clients */}
-        <div>
-          <SectionHeader title="Priority Clients" action={{ label: 'View all', href: '/clients' }} />
-          <div className="space-y-3">
-            {priorityClients.map((c, i) => {
-              const cw = c.progress.weight;
-              const curW = cw.length > 0 ? cw[cw.length - 1].val : null;
-              const stW = cw.length > 0 ? cw[0].val : null;
-              const pct = stW && curW ? Math.min(100, Math.round(((stW - curW) / (stW * 0.15)) * 100)) : 60;
-              const colors = ['#2563EB', '#8B5CF6', '#F59E0B', '#10B981'];
-              const color = colors[i % 4];
-              const r = 18, circ = 2 * Math.PI * r;
-              const off = circ - (pct / 100) * circ;
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Priority Clients</h2>
+            <Link href="/clients" style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              All Clients <ChevronRight size={12} />
+            </Link>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {MOCK_CLIENTS.filter(c => c.status !== 'delivered').map(c => {
+              const prog = c.progress?.weight?.length || 0;
+              const progPct = Math.min(Math.round((prog / 12) * 100), 100);
+              const calColor = getInitialsColor(c.id);
               return (
-                <div key={c.id} className="card card-hover p-4 animate-slide-up cursor-pointer" style={{ animationDelay: `${i * 60}ms` }}>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold" style={{ background: `${color}15`, color }}>
-                        {c.initials}
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-gray-900">{c.name}</div>
-                        <div className="text-xs text-gray-500">{c.goal} · {c.calories} kcal</div>
-                      </div>
+                <div key={c.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '12px 14px', borderRadius: 12,
+                  transition: 'all 0.15s', cursor: 'pointer',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                >
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                    background: `linear-gradient(135deg, ${calColor}15, ${calColor}05)`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 13, fontWeight: 700, color: calColor,
+                  }}>
+                    {c.initials}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{c.name}</span>
+                      <span className={`badge badge-${c.status === 'active' ? 'success' : c.status === 'review' ? 'warning' : 'info'}`}>
+                        {c.status === 'active' ? 'Active' : c.status === 'review' ? 'Review' : 'Delivered'}
+                      </span>
                     </div>
-                    <svg width="40" height="40" className="shrink-0" style={{ transform: 'rotate(-90deg)' }}>
-                      <circle cx="20" cy="20" r={r} fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth="3" />
-                      <circle cx="20" cy="20" r={r} fill="none" stroke={color} strokeWidth="3" strokeDasharray={circ} strokeDashoffset={off} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
-                    </svg>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
+                      {c.goal} • {c.split} • {c.calories} kcal
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
-                    <span className={`badge ${
-                      c.status === 'active' ? 'badge-success' : c.status === 'review' ? 'badge-warning' : 'badge-info'
-                    } py-0.5`}>{c.status === 'active' ? 'Active' : c.status === 'review' ? 'Review' : 'Delivered'}</span>
-                    <span>Week {c.programWeek}</span>
-                    {curW && <span>{curW} kg</span>}
-                  </div>
-                  <div className="flex items-center gap-1.5 pt-3 border-t border-gray-50">
-                    <button className="flex-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg py-1.5 transition-colors">Profile</button>
-                    <button className="flex-1 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg py-1.5 transition-colors">Generate Plan</button>
-                    <button className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-400 transition-colors"><MessageCircle size={13} /></button>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                    <ProgressRing pct={progPct} size={34} stroke={3} color={calColor} />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 500 }}>W{c.programWeek}</span>
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
