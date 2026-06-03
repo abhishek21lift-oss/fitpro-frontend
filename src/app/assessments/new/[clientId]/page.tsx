@@ -20,7 +20,7 @@ export default function NewAssessmentPage() {
   const clientId = params.clientId as string;
 
   const [saving, setSaving] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(true);
 
   const [form, setForm] = useState({
     full_name: "", age: "", gender: "M",
@@ -37,36 +37,6 @@ export default function NewAssessmentPage() {
     food_likes: "", food_dislikes: "",
     mobility_issues: "", secondary_goals: "",
   });
-
-  useEffect(() => {
-    const token = localStorage.getItem("fitai_token");
-    if (!clientId) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/${clientId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(r => r.json()).then(c => {
-      if (c) {
-        setForm(f => ({
-          ...f,
-          full_name: c.full_name || c.name || "",
-          age: c.age?.toString() || "",
-          gender: c.gender || "M",
-          height: c.height?.toString() || "",
-          weight: c.weight?.toString() || "",
-          body_fat_percentage: c.body_fat_percentage?.toString() || "",
-          goal: c.goal || GOALS[0],
-          activity_level: c.activity_level || ACTIVITY_LEVELS[2],
-          diet_type: c.diet_type || DIET_TYPES[0],
-          meal_frequency: c.meal_frequency?.toString() || "3",
-          health_conditions: c.health_conditions || c.assessment?.healthConditions || "",
-          medications: c.medications || c.assessment?.medication || "",
-          injuries: c.injuries || c.assessment?.injuries || "",
-          experience_level: c.experience_level || c.assessment?.trainingExp || EXPERIENCE_LEVELS[1],
-          sleep_hours: c.sleep_hours?.toString() || c.assessment?.sleep?.replace("h","") || "7",
-          stress_level: c.stress_level || c.assessment?.stress || STRESS_LEVELS[1],
-        }));
-      }
-    }).finally(() => setLoaded(true));
-  }, [clientId]);
 
   function set<K extends keyof typeof form>(key: K, val: string) {
     setForm(f => ({ ...f, [key]: val }));
@@ -179,7 +149,7 @@ export default function NewAssessmentPage() {
                 New Assessment
               </h1>
               <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '2px 0 0' }}>
-                {form.full_name || `Client #${clientId}`}
+                {form.full_name || `Client #${clientId}`} {clientId ? '✓' : '✗ missing id'}
               </p>
             </div>
           </div>
