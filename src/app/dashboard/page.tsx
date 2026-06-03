@@ -525,8 +525,7 @@ export default function Dashboard() {
               Recent Activity
             </div>
             <button style={{
-              fontSize: 12, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg, #8B5CF6, #EC4899)',
+              fontSize: 12, fontWeight: 700, background: 'linear-gradient(135deg, #8B5CF6, #EC4899)', border: 'none', cursor: 'pointer',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               fontFamily: 'var(--font-sans)',
             } as any}>View All</button>
