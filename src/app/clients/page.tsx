@@ -57,10 +57,15 @@ export default function ClientsPage() {
 
   useEffect(() => {
     api.clients.list()
-      .then(setClients)
-      .catch(() => setClients([]))
+      .then(data => { if (data.length) setClients(data); else fallbackToLocal(); })
+      .catch(() => fallbackToLocal())
       .finally(() => setLoading(false));
   }, []);
+
+  function fallbackToLocal() {
+    const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
+    if (local.length) setClients(local);
+  }
 
   const filtered = useMemo(() =>
     clients.filter(c =>
@@ -229,15 +234,15 @@ export default function ClientsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 11, color: 'var(--text-muted)', flexWrap: 'wrap' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Flame size={11} style={{ color: '#F59E0B' }} />
-                    {c.calories} kcal
+                    {c.calories || '—'} kcal
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Dumbbell size={11} style={{ color: '#8B5CF6' }} />
-                    {c.split}
+                    {c.split || '—'}
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Heart size={11} style={{ color: '#F43F5E' }} />
-                    BMI {c.assessment.bmi}
+                    BMI {c.assessment?.bmi}
                   </span>
                   {wData && wData.length >= 2 && (
                     <span style={{
