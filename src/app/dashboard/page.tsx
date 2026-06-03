@@ -381,7 +381,11 @@ export default function Dashboard() {
               </div>
               <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>Priya Sharma • 8-week progression</p>
             </div>
-            <Link href="/analytics" style={{
+          <Link href="/clients" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+            <ClipboardList size={14} /> New Assessment
+          </Link>
+
+          <Link href="/analytics" style={{
               fontSize: 12, fontWeight: 600,
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
@@ -624,9 +628,13 @@ export default function Dashboard() {
                       <span style={{ color: calColor, fontWeight: 600 }}>{c.goal}</span> • {c.split} • {c.calories} kcal
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <ProgressRing pct={progPct} size={36} stroke={3.5} color={calColor} />
                     <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>W{c.programWeek}</span>
+                    <Link href={`/assessments/new/${c.id}`} style={{ fontSize: 10, fontWeight: 600, color: '#6366F1', textDecoration: 'none' }}
+                      onClick={e => e.stopPropagation()}>
+                      Assess
+                    </Link>
                   </div>
                 </div>
               );
