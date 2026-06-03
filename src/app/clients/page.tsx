@@ -57,7 +57,16 @@ export default function ClientsPage() {
 
   useEffect(() => {
     api.clients.list()
-      .then(setClients)
+      .then(apiClients => {
+        const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
+        if (local.length) {
+          const ids = new Set(apiClients.map((c: any) => c.id));
+          const newLocal = local.filter((c: any) => !ids.has(c.id));
+          setClients(newLocal.length ? [...apiClients, ...newLocal] : apiClients);
+        } else {
+          setClients(apiClients);
+        }
+      })
       .catch(() => {
         const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
         if (local.length) setClients(local);
