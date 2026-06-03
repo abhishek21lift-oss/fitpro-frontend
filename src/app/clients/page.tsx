@@ -57,15 +57,13 @@ export default function ClientsPage() {
 
   useEffect(() => {
     api.clients.list()
-      .then(data => { if (data.length) setClients(data); else fallbackToLocal(); })
-      .catch(() => fallbackToLocal())
+      .then(setClients)
+      .catch(() => {
+        const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
+        if (local.length) setClients(local);
+      })
       .finally(() => setLoading(false));
   }, []);
-
-  function fallbackToLocal() {
-    const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
-    if (local.length) setClients(local);
-  }
 
   const filtered = useMemo(() =>
     clients.filter(c =>

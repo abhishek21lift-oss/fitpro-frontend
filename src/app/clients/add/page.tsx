@@ -54,7 +54,7 @@ export default function AddClientPage() {
     setSaving(true);
     const token = localStorage.getItem("fitai_token");
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
@@ -72,6 +72,7 @@ export default function AddClientPage() {
           secondaryGoals: form.secondaryGoals,
         }),
       });
+      if (!res.ok) throw new Error('API error');
     } catch {
       // Backend unavailable — save client locally
       const localClients = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
