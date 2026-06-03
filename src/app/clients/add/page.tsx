@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  User, Target, Heart, Salad, Dumbbell, Sun, ArrowRight, ArrowLeft,
+  User, Target, Heart, Salad, Dumbbell, Sun,
   Sparkles, Check, ChevronRight, ChevronLeft,
 } from "lucide-react";
 
@@ -14,13 +14,13 @@ const ACTIVITY_LEVELS = ["Sedentary", "Lightly Active", "Moderately Active", "Ve
 const STRESS_LEVELS = ["Low", "Medium", "High"];
 const GENDERS = ["Male", "Female", "Other"];
 
-const STEPS = [
-  { key: "personal", label: "Personal", icon: User },
-  { key: "goals", label: "Goals", icon: Target },
-  { key: "medical", label: "Medical", icon: Heart },
-  { key: "nutrition", label: "Nutrition", icon: Salad },
-  { key: "training", label: "Training", icon: Dumbbell },
-  { key: "lifestyle", label: "Lifestyle", icon: Sun },
+const STEP_THEMES = [
+  { icon: User, label: "Personal", gradient: "linear-gradient(135deg, #6366F1, #8B5CF6)", color: "#6366F1", bg: "rgba(99,102,241,0.08)", emoji: "👤" },
+  { icon: Target, label: "Goals", gradient: "linear-gradient(135deg, #F59E0B, #EF4444)", color: "#F59E0B", bg: "rgba(245,158,11,0.08)", emoji: "🎯" },
+  { icon: Heart, label: "Medical", gradient: "linear-gradient(135deg, #EC4899, #F43F5E)", color: "#EC4899", bg: "rgba(236,72,153,0.08)", emoji: "🏥" },
+  { icon: Salad, label: "Nutrition", gradient: "linear-gradient(135deg, #10B981, #059669)", color: "#10B981", bg: "rgba(16,185,129,0.08)", emoji: "🥗" },
+  { icon: Dumbbell, label: "Training", gradient: "linear-gradient(135deg, #F97316, #EF4444)", color: "#F97316", bg: "rgba(249,115,22,0.08)", emoji: "💪" },
+  { icon: Sun, label: "Lifestyle", gradient: "linear-gradient(135deg, #06B6D4, #6366F1)", color: "#06B6D4", bg: "rgba(6,182,212,0.08)", emoji: "🌅" },
 ];
 
 export default function AddClientPage() {
@@ -90,144 +90,182 @@ export default function AddClientPage() {
     setSaving(false);
   }
 
-  const currentStep = STEPS[step];
-  const progress = ((step + 1) / STEPS.length) * 100;
+  const t = STEP_THEMES[step];
+  const progress = ((step + 1) / STEP_THEMES.length) * 100;
   const canProceed = step === 0 ? form.fullName.trim().length > 0 : step === 1 ? form.goal.length > 0 : true;
+
+  const orbStyles = (i: number) => {
+    const c = STEP_THEMES[step].color;
+    return {
+      position: "absolute" as const,
+      width: [400, 350, 300][i],
+      height: [400, 350, 300][i],
+      borderRadius: "50%",
+      background: `radial-gradient(circle, ${c}14, transparent 70%)`,
+      pointerEvents: "none" as const,
+    };
+  };
 
   return (
     <div style={{
       minHeight: "100vh",
       display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "40px 24px",
-      background: "linear-gradient(180deg, #FAFBFF 0%, #F0F2F8 50%, #E8ECF4 100%)",
+      padding: "clamp(16px, 4vw, 40px)",
+      background: "linear-gradient(180deg, #F8FAFF 0%, #F0F2FE 50%, #E8ECF4 100%)",
       position: "relative",
       overflow: "hidden",
     }}>
       {/* Decorative orbs */}
-      <div style={{
-        position: "absolute", top: -120, right: -80, width: 500, height: 500,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)",
-        pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", bottom: -100, left: -60, width: 400, height: 400,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)",
-        pointerEvents: "none",
-      }} />
+      <div style={{ ...orbStyles(0), top: -100, right: -80, opacity: 0.7 }} />
+      <div style={{ ...orbStyles(1), bottom: -80, left: -60, opacity: 0.5 }} />
+      <div style={{ ...orbStyles(2), top: "40%", left: "50%", transform: "translate(-50%,-50%)", opacity: 0.3 }} />
 
-      <div style={{ width: "100%", maxWidth: 680, position: "relative", zIndex: 1 }}>
-        {/* Header */}
-        <div style={{ marginBottom: 32, textAlign: "center" }}>
+      <div style={{
+        width: "100%",
+        maxWidth: 720,
+        position: "relative",
+        zIndex: 1,
+      }}>
+        {/* ─── Header ─── */}
+        <div style={{ marginBottom: "clamp(20px, 3vw, 32px)", textAlign: "center" }}>
           <div style={{
-            width: 56, height: 56, borderRadius: 16,
-            background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+            width: "clamp(48px, 6vw, 60px)",
+            height: "clamp(48px, 6vw, 60px)",
+            borderRadius: "clamp(14px, 2vw, 18px)",
+            background: t.gradient,
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 16px",
-            boxShadow: "0 8px 32px rgba(99,102,241,0.25)",
+            margin: "0 auto clamp(12px, 1.5vw, 16px)",
+            boxShadow: `0 8px 32px ${t.color}30`,
           }}>
-            <User size={26} color="white" />
+            <t.icon size={26} color="white" />
           </div>
           <h1 style={{
-            fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em",
+            fontSize: "clamp(22px, 3.5vw, 30px)",
+            fontWeight: 700, letterSpacing: "-0.02em",
             color: "#1A1A2E", margin: "0 0 4px",
           }}>
             New Client Onboarding
           </h1>
-          <p style={{ fontSize: 14, color: "#6B7280", margin: 0 }}>
+          <p style={{ fontSize: "clamp(13px, 1.5vw, 14px)", color: "#6B7280", margin: 0 }}>
             Complete the assessment to generate AI-powered fitness plans
           </p>
         </div>
 
-        {/* Step indicator */}
+        {/* ─── Step stepper ─── */}
         <div style={{
-          background: "rgba(255,255,255,0.7)",
+          background: "rgba(255,255,255,0.75)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderRadius: 14,
-          padding: "6px 8px",
-          marginBottom: 24,
-          border: "1px solid rgba(255,255,255,0.5)",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+          borderRadius: 16,
+          padding: "clamp(4px, 1vw, 8px)",
+          marginBottom: "clamp(16px, 2vw, 24px)",
+          border: "1px solid rgba(255,255,255,0.6)",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.04)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            {STEPS.map((s, i) => {
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            overflowX: "auto",
+            scrollbarWidth: "none",
+          }}>
+            {STEP_THEMES.map((s, i) => {
               const isActive = i === step;
               const isDone = i < step;
               return (
                 <button
-                  key={s.key}
+                  key={s.label}
                   onClick={() => setStep(i)}
                   style={{
                     flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    padding: "8px 6px", borderRadius: 10, border: "none",
-                    fontSize: 11, fontWeight: 600, cursor: "pointer",
-                    background: isActive ? "linear-gradient(135deg, #6366F1, #8B5CF6)" : "transparent",
-                    color: isActive ? "white" : isDone ? "#6366F1" : "#9CA3AF",
-                    transition: "all 0.2s",
-                    opacity: isActive ? 1 : 0.7,
+                    padding: "clamp(6px, 1vw, 10px) clamp(4px, 0.8vw, 8px)",
+                    borderRadius: 12, border: "none",
+                    fontSize: "clamp(10px, 1.2vw, 12px)",
+                    fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+                    background: isActive ? s.gradient : "transparent",
+                    color: isActive ? "white" : isDone ? s.color : "#9CA3AF",
+                    transition: "all 0.25s",
+                    opacity: isActive || isDone ? 1 : 0.6,
+                    minWidth: 0,
                   }}
                 >
-                  {isDone ? <Check size={12} /> : <s.icon size={12} />}
-                  <span style={{ fontSize: 11 }}>{s.label}</span>
+                  <span style={{ display: "inline" }}>
+                    {isDone ? <Check size={12} /> : <s.icon size={12} />}
+                  </span>
+                  <span style={{ fontSize: "clamp(9px, 1.2vw, 11px)" }}>
+                    {s.label}
+                  </span>
                 </button>
               );
             })}
           </div>
-          {/* Progress bar */}
           <div style={{
-            height: 3, borderRadius: 2, marginTop: 6,
+            height: 4, borderRadius: 2, marginTop: 6,
             background: "rgba(0,0,0,0.04)", overflow: "hidden",
           }}>
             <div style={{
               height: "100%", borderRadius: 2,
-              background: "linear-gradient(90deg, #6366F1, #8B5CF6)",
+              background: t.gradient,
               width: `${progress}%`,
               transition: "width 0.4s ease",
             }} />
           </div>
         </div>
 
-        {/* Form card */}
+        {/* ─── Form card ─── */}
         <div style={{
-          background: "rgba(255,255,255,0.78)",
+          background: "rgba(255,255,255,0.82)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          borderRadius: 20,
-          border: "1px solid rgba(255,255,255,0.6)",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.06)",
+          borderRadius: "clamp(16px, 2.5vw, 24px)",
+          border: "1px solid rgba(255,255,255,0.7)",
+          boxShadow: "0 8px 48px rgba(0,0,0,0.06)",
           overflow: "hidden",
+          transition: "all 0.3s",
         }}>
           {/* Section header */}
           <div style={{
-            padding: "24px 28px 0",
+            padding: "clamp(16px, 2.5vw, 28px) clamp(16px, 2.5vw, 28px) 0",
             display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: 8,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                width: 38, height: 38, borderRadius: 12,
+                background: t.gradient,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(99,102,241,0.2)",
+                boxShadow: `0 4px 12px ${t.color}25`,
               }}>
-                <currentStep.icon size={16} color="white" />
+                <t.icon size={18} color="white" />
               </div>
               <div>
-                <h2 style={{ fontSize: 16, fontWeight: 600, color: "#1A1A2E", margin: 0 }}>
-                  {STEPS[step].label}
+                <h2 style={{
+                  fontSize: "clamp(14px, 1.8vw, 17px)",
+                  fontWeight: 600,
+                  color: "#1A1A2E",
+                  margin: 0,
+                }}>
+                  {STEP_THEMES[step].label}
                 </h2>
-                <p style={{ fontSize: 12, color: "#9CA3AF", margin: "1px 0 0" }}>
-                  Step {step + 1} of {STEPS.length}
+                <p style={{ fontSize: "clamp(11px, 1.2vw, 12px)", color: "#9CA3AF", margin: "1px 0 0" }}>
+                  Step {step + 1} of {STEP_THEMES.length}
                 </p>
               </div>
             </div>
+            <span style={{
+              fontSize: "clamp(20px, 3vw, 28px)",
+              lineHeight: 1,
+            }}>
+              {t.emoji}
+            </span>
           </div>
 
           {/* Form body */}
-          <div style={{ padding: "20px 28px 0" }}>
+          <div style={{
+            padding: "clamp(16px, 2.5vw, 24px) clamp(16px, 2.5vw, 28px) 0",
+          }}>
             {step === 0 && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="form-grid-2">
                 <InputGroup label="Full Name *" span={2}>
                   <Input
                     placeholder="e.g. Rahul Sharma"
@@ -257,27 +295,34 @@ export default function AddClientPage() {
             )}
 
             {step === 1 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(16px, 2vw, 24px)" }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>
+                  <label style={{
+                    fontSize: "clamp(12px, 1.3vw, 13px)", fontWeight: 600, color: "#374151",
+                    marginBottom: 8, display: "block",
+                  }}>
                     Primary Goal *
                   </label>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <div className="form-grid-2">
                     {GOALS.map((g) => {
                       const sel = form.goal === g;
+                      const gc = g === "Fat Loss" ? "#F43F5E" : g === "Muscle Gain" ? "#8B5CF6" : g === "Strength Gain" ? "#F97316" : g === "Recomposition" ? "#10B981" : "#06B6D4";
                       return (
                         <button
                           key={g}
                           onClick={() => update("goal", g)}
                           style={{
-                            padding: "12px 16px", borderRadius: 12, border: "1.5px solid",
-                            borderColor: sel ? "#6366F1" : "rgba(0,0,0,0.06)",
-                            background: sel ? "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))" : "rgba(255,255,255,0.5)",
-                            color: sel ? "#6366F1" : "#6B7280",
-                            fontSize: 13, fontWeight: sel ? 600 : 500, cursor: "pointer",
+                            padding: "clamp(10px, 1.5vw, 14px) clamp(12px, 1.5vw, 16px)",
+                            borderRadius: 14, border: "2px solid",
+                            borderColor: sel ? gc : "rgba(0,0,0,0.06)",
+                            background: sel ? `${gc}12` : "rgba(255,255,255,0.5)",
+                            color: sel ? gc : "#6B7280",
+                            fontSize: "clamp(12px, 1.3vw, 14px)",
+                            fontWeight: sel ? 700 : 500, cursor: "pointer",
                             textAlign: "center",
                             transition: "all 0.15s",
-                            boxShadow: sel ? "0 2px 8px rgba(99,102,241,0.12)" : "none",
+                            boxShadow: sel ? `0 4px 16px ${gc}20` : "none",
+                            fontFamily: "var(--font-sans)",
                           }}
                         >
                           {g}
@@ -287,23 +332,30 @@ export default function AddClientPage() {
                   </div>
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>
+                  <label style={{
+                    fontSize: "clamp(12px, 1.3vw, 13px)", fontWeight: 600, color: "#374151",
+                    marginBottom: 8, display: "block",
+                  }}>
                     Secondary Goals
                   </label>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {GOALS.filter((g) => g !== form.goal).map((g) => {
                       const sel = form.secondaryGoals.includes(g);
+                      const gc = g === "Fat Loss" ? "#F43F5E" : g === "Muscle Gain" ? "#8B5CF6" : g === "Strength Gain" ? "#F97316" : g === "Recomposition" ? "#10B981" : "#06B6D4";
                       return (
                         <button
                           key={g}
                           onClick={() => toggleGoal(g)}
                           style={{
-                            padding: "8px 14px", borderRadius: 20, border: "1px solid",
-                            borderColor: sel ? "#6366F1" : "rgba(0,0,0,0.06)",
-                            background: sel ? "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))" : "rgba(255,255,255,0.5)",
-                            color: sel ? "#6366F1" : "#9CA3AF",
-                            fontSize: 12, fontWeight: 500, cursor: "pointer",
+                            padding: "clamp(6px, 1vw, 8px) clamp(12px, 1.5vw, 16px)",
+                            borderRadius: 20, border: "1.5px solid",
+                            borderColor: sel ? gc : "rgba(0,0,0,0.06)",
+                            background: sel ? `${gc}12` : "rgba(255,255,255,0.5)",
+                            color: sel ? gc : "#9CA3AF",
+                            fontSize: "clamp(11px, 1.2vw, 12px)",
+                            fontWeight: sel ? 600 : 500, cursor: "pointer",
                             transition: "all 0.15s",
+                            fontFamily: "var(--font-sans)",
                           }}
                         >
                           {sel ? "✓ " : "+ "}{g}
@@ -316,7 +368,7 @@ export default function AddClientPage() {
             )}
 
             {step === 2 && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="form-grid-2">
                 <InputGroup label="Medical Conditions" span={2}>
                   <Textarea
                     placeholder="e.g. Diabetes, Thyroid, PCOS"
@@ -340,7 +392,7 @@ export default function AddClientPage() {
             )}
 
             {step === 3 && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="form-grid-2">
                 <InputGroup label="Diet Type *">
                   <Select value={form.dietType} onChange={(e) => update("dietType", e.target.value)}>
                     <option value="">Select</option>
@@ -369,7 +421,7 @@ export default function AddClientPage() {
             )}
 
             {step === 4 && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="form-grid-2">
                 <InputGroup label="Experience Level">
                   <Select value={form.experienceLevel} onChange={(e) => update("experienceLevel", e.target.value)}>
                     <option value="">Select</option>
@@ -401,7 +453,7 @@ export default function AddClientPage() {
             )}
 
             {step === 5 && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="form-grid-2">
                 <InputGroup label="Occupation" span={2}>
                   <Input placeholder="e.g. Software Engineer" value={form.occupation} onChange={(e) => update("occupation", e.target.value)} />
                 </InputGroup>
@@ -421,18 +473,21 @@ export default function AddClientPage() {
                   <div style={{ display: "flex", gap: 8 }}>
                     {STRESS_LEVELS.map((l) => {
                       const sel = form.stressLevel === l;
+                      const sc = l === "Low" ? "#10B981" : l === "Medium" ? "#F59E0B" : "#F43F5E";
                       return (
                         <button
                           key={l}
                           onClick={() => update("stressLevel", l)}
                           style={{
-                            flex: 1, padding: "10px", borderRadius: 10, border: "1.5px solid",
-                            borderColor: sel ? "#6366F1" : "rgba(0,0,0,0.06)",
-                            background: sel ? "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))" : "rgba(255,255,255,0.5)",
-                            color: sel ? "#6366F1" : "#6B7280",
-                            fontSize: 13, fontWeight: sel ? 600 : 500, cursor: "pointer",
-                            textAlign: "center",
+                            flex: 1, padding: "clamp(8px, 1.2vw, 12px)", borderRadius: 12, border: "2px solid",
+                            borderColor: sel ? sc : "rgba(0,0,0,0.06)",
+                            background: sel ? `${sc}12` : "rgba(255,255,255,0.5)",
+                            color: sel ? sc : "#6B7280",
+                            fontSize: "clamp(12px, 1.3vw, 14px)",
+                            fontWeight: sel ? 700 : 500, cursor: "pointer",
+                            textAlign: "center", fontFamily: "var(--font-sans)",
                             transition: "all 0.15s",
+                            boxShadow: sel ? `0 2px 10px ${sc}20` : "none",
                           }}
                         >
                           {l}
@@ -447,19 +502,22 @@ export default function AddClientPage() {
 
           {/* Footer */}
           <div style={{
-            padding: "20px 28px 24px",
+            padding: "clamp(16px, 2.5vw, 24px) clamp(16px, 2.5vw, 28px)",
             display: "flex", alignItems: "center", justifyContent: "space-between",
             borderTop: "1px solid rgba(0,0,0,0.04)",
-            marginTop: 20,
+            marginTop: "clamp(16px, 2vw, 24px)",
+            gap: 12,
           }}>
             <button
               onClick={() => setStep(Math.max(0, step - 1))}
               disabled={step === 0}
               style={{
-                padding: "10px 20px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.06)",
+                padding: "clamp(10px, 1.2vw, 12px) clamp(16px, 2vw, 22px)",
+                borderRadius: 12, border: "1px solid rgba(0,0,0,0.06)",
                 background: step === 0 ? "transparent" : "rgba(255,255,255,0.8)",
                 color: step === 0 ? "#D1D5DB" : "#374151",
-                fontSize: 13, fontWeight: 600, cursor: step === 0 ? "default" : "pointer",
+                fontSize: "clamp(12px, 1.3vw, 14px)",
+                fontWeight: 600, cursor: step === 0 ? "default" : "pointer",
                 display: "flex", alignItems: "center", gap: 6,
                 fontFamily: "var(--font-sans)",
                 transition: "all 0.15s",
@@ -469,18 +527,20 @@ export default function AddClientPage() {
               <ChevronLeft size={16} /> Back
             </button>
 
-            {step < STEPS.length - 1 ? (
+            {step < STEP_THEMES.length - 1 ? (
               <button
                 onClick={() => setStep(step + 1)}
                 disabled={!canProceed}
                 style={{
-                  padding: "10px 24px", borderRadius: 12, border: "none",
-                  background: canProceed ? "linear-gradient(135deg, #6366F1, #8B5CF6)" : "rgba(0,0,0,0.04)",
+                  padding: "clamp(10px, 1.2vw, 12px) clamp(20px, 2.5vw, 28px)",
+                  borderRadius: 12, border: "none",
+                  background: canProceed ? t.gradient : "rgba(0,0,0,0.04)",
                   color: canProceed ? "white" : "#D1D5DB",
-                  fontSize: 13, fontWeight: 600, cursor: canProceed ? "pointer" : "default",
+                  fontSize: "clamp(12px, 1.3vw, 14px)",
+                  fontWeight: 600, cursor: canProceed ? "pointer" : "default",
                   display: "flex", alignItems: "center", gap: 6,
                   fontFamily: "var(--font-sans)",
-                  boxShadow: canProceed ? "0 4px 14px rgba(99,102,241,0.25)" : "none",
+                  boxShadow: canProceed ? `0 4px 16px ${t.color}30` : "none",
                   transition: "all 0.15s",
                 }}
               >
@@ -491,15 +551,18 @@ export default function AddClientPage() {
                 onClick={handleSave}
                 disabled={saving || !form.fullName}
                 style={{
-                  padding: "10px 28px", borderRadius: 12, border: "none",
+                  padding: "clamp(10px, 1.2vw, 12px) clamp(20px, 2.5vw, 28px)",
+                  borderRadius: 12, border: "none",
                   background: !saving && form.fullName
                     ? "linear-gradient(135deg, #10B981, #059669)"
                     : "rgba(0,0,0,0.04)",
                   color: !saving && form.fullName ? "white" : "#D1D5DB",
-                  fontSize: 13, fontWeight: 600, cursor: !saving && form.fullName ? "pointer" : "default",
+                  fontSize: "clamp(12px, 1.3vw, 14px)",
+                  fontWeight: 600,
+                  cursor: !saving && form.fullName ? "pointer" : "default",
                   display: "flex", alignItems: "center", gap: 8,
                   fontFamily: "var(--font-sans)",
-                  boxShadow: !saving && form.fullName ? "0 4px 14px rgba(16,185,129,0.25)" : "none",
+                  boxShadow: !saving && form.fullName ? "0 4px 16px rgba(16,185,129,0.3)" : "none",
                   transition: "all 0.15s",
                 }}
               >
@@ -513,13 +576,26 @@ export default function AddClientPage() {
           </div>
         </div>
 
-        {/* Footer text */}
         <p style={{
-          textAlign: "center", fontSize: 11, color: "#9CA3AF", marginTop: 16,
+          textAlign: "center", fontSize: "clamp(10px, 1vw, 11px)",
+          color: "#9CA3AF", marginTop: 16,
         }}>
           All data is encrypted and stored securely
         </p>
       </div>
+
+      <style>{`
+        .form-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: clamp(12px, 1.5vw, 16px);
+        }
+        @media (min-width: 500px) {
+          .form-grid-2 {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -530,7 +606,7 @@ function InputGroup({ label, children, span }: { label: string; children: React.
   return (
     <div style={{ gridColumn: span ? `span ${span}` : undefined }}>
       <label style={{
-        fontSize: 12, fontWeight: 600, color: "#374151",
+        fontSize: "clamp(11px, 1.2vw, 12px)", fontWeight: 600, color: "#374151",
         marginBottom: 5, display: "block",
       }}>
         {label}
@@ -542,10 +618,11 @@ function InputGroup({ label, children, span }: { label: string; children: React.
 
 const inputBase: React.CSSProperties = {
   width: "100%", boxSizing: "border-box",
-  padding: "10px 14px", borderRadius: 10,
-  border: "1px solid rgba(0,0,0,0.06)",
-  background: "rgba(255,255,255,0.7)",
-  fontSize: 13, color: "#1A1A2E",
+  padding: "clamp(10px, 1.2vw, 12px) clamp(12px, 1.5vw, 14px)",
+  borderRadius: 12,
+  border: "1.5px solid rgba(0,0,0,0.06)",
+  background: "rgba(255,255,255,0.75)",
+  fontSize: "clamp(13px, 1.4vw, 14px)", color: "#1A1A2E",
   fontFamily: "var(--font-sans)",
   outline: "none",
   transition: "all 0.15s",
@@ -556,7 +633,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       style={{ ...inputBase, ...(props.style || {}) }}
-      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12)"; }}
       onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
     />
   );
@@ -567,7 +644,7 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     <select
       {...props}
       style={{ ...inputBase, ...(props.style || {}), cursor: "pointer" }}
-      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12)"; }}
       onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
     />
   );
@@ -577,8 +654,8 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      style={{ ...inputBase, ...(props.style || {}), resize: "vertical", minHeight: 60 }}
-      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+      style={{ ...inputBase, ...(props.style || {}), resize: "vertical", minHeight: "clamp(60px, 8vw, 80px)" }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12)"; }}
       onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
     />
   );
