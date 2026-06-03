@@ -381,10 +381,6 @@ export default function Dashboard() {
               </div>
               <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>Priya Sharma • 8-week progression</p>
             </div>
-          <Link href="/clients" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
-            <ClipboardList size={14} /> New Assessment
-          </Link>
-
           <Link href="/analytics" style={{
               fontSize: 12, fontWeight: 600,
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
@@ -631,10 +627,7 @@ export default function Dashboard() {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <ProgressRing pct={progPct} size={36} stroke={3.5} color={calColor} />
                     <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>W{c.programWeek}</span>
-                    <Link href={`/clients/${c.id}/assessments/new`} style={{ fontSize: 10, fontWeight: 600, color: '#6366F1', textDecoration: 'none' }}
-                      onClick={e => e.stopPropagation()}>
-                      Assess
-                    </Link>
+                    <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}></span>
                   </div>
                 </div>
               );

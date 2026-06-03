@@ -475,16 +475,13 @@ export default function ClientProfilePage() {
       {/* ════════ TAB: ASSESSMENT ════════ */}
       {activeTab === "assessment" && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-            <button onClick={() => { window.location.href = `/clients/${params.id}/assessments/new`; }} className="btn btn-primary btn-sm">
-              <Plus size={14} /> New Assessment
-            </button>
-            {assessmentId && (
-              <Link href={`/assessments/${assessmentId}`} className="btn btn-ghost btn-sm" style={{ marginLeft: 8 }}>
+          {assessmentId && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+              <Link href={`/assessments/${assessmentId}`} className="btn btn-ghost btn-sm">
                 View Full Assessment <ChevronRight size={12} />
               </Link>
-            )}
-          </div>
+            </div>
+          )}
           <div className="grid-2">
             <div className="card card-accent-blue" style={{ padding: 22 }}>
               <div className="section-heading blue" style={{ fontSize: 14, marginBottom: 16 }}>Personal Details</div>

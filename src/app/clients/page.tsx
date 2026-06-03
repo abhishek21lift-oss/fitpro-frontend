@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
-  Users, Plus, Search, ChevronRight, Target, Zap,
+  Users, Search, ChevronRight, Target, Zap,
   Dumbbell, Heart, Activity, ArrowUpRight, ArrowDownRight,
   Flame, Clock, Award, Sparkles, SlidersHorizontal,
 } from 'lucide-react';
@@ -118,10 +118,7 @@ export default function ClientsPage() {
                 style={{ padding: '9px 14px 9px 36px', fontSize: 13, width: 200 }}
               />
             </div>
-            <button className="btn btn-primary" style={{ padding: '9px 18px', gap: 6 }}>
-              <Plus size={16} />
-              New Assessment
-            </button>
+
           </div>
         </div>
 
