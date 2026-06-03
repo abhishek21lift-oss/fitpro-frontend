@@ -175,14 +175,16 @@ export default function ClientsPage() {
           const progPct = Math.min(Math.round(((c.progress?.weight?.length || 0) / 12) * 100), 100);
 
           return (
-            <div
+            <Link
               key={c.id}
+              href={`/clients/${c.id}`}
               className="card card-hover"
               style={{
                 padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16,
                 cursor: 'pointer', position: 'relative', overflow: 'hidden',
                 borderLeft: `3px solid ${color}`,
                 animation: `slideUp 0.35s var(--ease) ${i * 0.05}s both`,
+                textDecoration: 'none', color: 'inherit',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = `linear-gradient(135deg, rgba(255,255,255,0.95), ${color}04)`;
@@ -267,7 +269,7 @@ export default function ClientsPage() {
               </div>
 
               <ChevronRight size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-            </div>
+            </Link>
           );
         })}
 
