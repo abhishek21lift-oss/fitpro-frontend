@@ -15,9 +15,9 @@ import {
   BarChart, Bar, RadialBarChart, RadialBar,
 } from 'recharts';
 import {
-  MOCK_CLIENTS, MOCK_ACTIVITY, MOCK_TRAINER,
-  getGreeting, formatDate, getInitialsColor,
+  getGreeting, formatDate,
 } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 /* ─── Sparkline ─── */
 function Sparkline({ data, color = '#6366F1', height = 40 }: { data: number[]; color?: string; height?: number }) {
@@ -204,6 +204,12 @@ export default function Dashboard() {
   const [time, setTime] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const [randomInsight] = useState(() => insightTexts[Math.floor(Math.random() * insightTexts.length)]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.clients.list().then(setClients).catch(() => setClients([]));
+  }, []);
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
@@ -212,9 +218,9 @@ export default function Dashboard() {
     return () => clearInterval(id);
   }, []);
 
-  const activeClients = MOCK_CLIENTS.filter(c => c.status === 'active');
-  const totalSessions = activeClients.reduce((a, c) => a + c.programWeek, 0);
-  const avgAdherence = 88;
+  const activeClients = clients.filter(c => c.status === 'active');
+  const totalSessions = activeClients.reduce((a, c) => a + (c.programWeek || 0), 0);
+  const avgAdherence = clients.length > 0 ? Math.round(clients.reduce((s, c) => s + (c.assessment?.adherence || 85), 0) / clients.length) : 88;
 
   const metrics: KpiProps[] = [
     {
@@ -247,8 +253,8 @@ export default function Dashboard() {
     },
   ];
 
-  const weightData = MOCK_CLIENTS[0].progress.weight;
-  const chartData = weightData.map(d => ({ name: d.week.replace('Week ', 'W'), weight: d.val }));
+  const weightData = clients[0]?.progress?.weight || [];
+  const chartData = weightData.map(d => ({ name: d.week?.replace('Week ', 'W') || '', weight: d.val }));
 
   return (
     <div className="page-content" style={{ animation: 'slideUp 0.4s var(--ease) both' }}>
@@ -272,7 +278,7 @@ export default function Dashboard() {
               background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 50%, #F59E0B 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>
-              {getGreeting()}, {MOCK_TRAINER.name.split(' ')[0]} ✨
+              {getGreeting()}, Coach ✨
             </h1>
           </div>
           {/* AI Insight Pill */}
@@ -531,7 +537,11 @@ export default function Dashboard() {
             } as any}>View All</button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {MOCK_ACTIVITY.map((a, i) => (
+            {activity.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px 0', color: '#94A3B8', fontSize: 13 }}>
+                No recent activity yet
+              </div>
+            ) : activity.map((a, i) => (
               <div key={i} style={{
                 display: 'flex', gap: 12,
                 padding: '10px 14px', borderRadius: 14,
@@ -575,10 +585,14 @@ export default function Dashboard() {
             }}>All Clients <ChevronRight size={12} style={{ color: '#EC4899' }} /></Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {MOCK_CLIENTS.filter(c => c.status !== 'delivered').map(c => {
+            {clients.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px 0', color: '#94A3B8', fontSize: 13 }}>
+                No clients yet
+              </div>
+            ) : clients.filter(c => c.status !== 'delivered').map(c => {
               const prog = c.progress?.weight?.length || 0;
               const progPct = Math.min(Math.round((prog / 12) * 100), 100);
-              const calColor = getInitialsColor(c.id);
+              const calColor = (['#2563EB', '#8B5CF6', '#F59E0B', '#10B981', '#F43F5E', '#06B6D4'])[c.id % 6];
               return (
                 <div key={c.id} style={{
                   display: 'flex', alignItems: 'center', gap: 14,

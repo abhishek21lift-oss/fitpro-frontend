@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Trophy, Target, Zap, Award, TrendingUp,
   ArrowUpRight, ArrowDownRight, CheckCircle,
@@ -10,7 +10,7 @@ import {
   RadialBarChart, RadialBar, ResponsiveContainer, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell,
 } from 'recharts';
-import { MOCK_CLIENTS } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 const goalTypes = [
   { label: 'Fat Loss', icon: Flame, color: '#F43F5E', color2: '#EC4899' },
@@ -32,22 +32,24 @@ const COLORS = ['#F43F5E', '#8B5CF6', '#F59E0B', '#10B981', '#6366F1', '#06B6D4'
 
 export default function GoalsPage() {
   const [view, setView] = useState<'overview' | 'clients'>('overview');
+  const [clients, setClients] = useState<any[]>([]);
 
-  const clientGoals = MOCK_CLIENTS.map((c, i) => {
-    const achieved = [5, 8, 3, 6, 4, 10][i % 6];
-    const total = [6, 10, 5, 8, 6, 12][i % 6];
-    return {
-      id: c.id, name: c.name, initials: c.initials,
-      goal: c.goal, achieved, total,
-      rate: Math.round((achieved / total) * 100),
-      streak: [4, 6, 2, 5, 3, 8][i % 6],
-      status: c.status,
-    };
-  });
+  useEffect(() => {
+    api.clients.list().then(setClients).catch(() => setClients([]));
+  }, []);
+
+  const clientGoals = clients.map((c, i) => ({
+    id: c.id, name: c.name, initials: c.initials,
+    goal: c.goal,
+    achieved: 0, total: 0,
+    rate: 0,
+    streak: 0,
+    status: c.status,
+  }));
 
   const totalHit = clientGoals.reduce((s, c) => s + c.achieved, 0);
   const totalGoals = clientGoals.reduce((s, c) => s + c.total, 0);
-  const overallRate = Math.round((totalHit / totalGoals) * 100);
+  const overallRate = totalGoals > 0 ? Math.round((totalHit / totalGoals) * 100) : 0;
 
   return (
     <div className="page-content" style={{ animation: 'slideUp 0.4s var(--ease) both' }}>
@@ -144,7 +146,7 @@ export default function GoalsPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {goalTypes.map((g, i) => {
                 const Icon = g.icon;
-                const count = MOCK_CLIENTS.filter(c => c.goal === g.label).length;
+                const count = clients.filter(c => c.goal === g.label).length;
                 const achieved = clientGoals.filter(cg => cg.goal === g.label).reduce((s, c) => s + c.achieved, 0);
                 return (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

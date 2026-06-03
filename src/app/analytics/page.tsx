@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Activity, Camera, CheckCircle, Clock, TrendingUp,
-  TrendingDown, Target, Heart, Droplets, Flame,
-  ChevronRight, ChevronDown, Sparkles, Award,
-  ArrowUpRight, ArrowDownRight, BarChart3, Zap,
+  TrendingUp, Users, Target, Clock, Download,
+  Calendar, ArrowUpRight, ArrowDownRight, Zap,
+  Dumbbell, Activity, Sparkles, Award, Flame, BarChart3,
+  ChevronDown, TrendingDown, CheckCircle, Camera,
 } from 'lucide-react';
 import {
-  LineChart, Line, AreaChart, Area, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, BarChart, Bar,
+  LineChart, Line, PieChart, Pie, Cell,
 } from 'recharts';
-import { MOCK_CLIENTS } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 /* ─── Tooltip ─── */
 function ChartTooltip({ active, payload, label, unit = '' }: any) {
@@ -57,11 +58,21 @@ function Sparkline({ data, color = '#2563EB' }: { data: { val: number }[]; color
 const CLIENT_COLORS = ['#2563EB', '#8B5CF6', '#F59E0B', '#10B981', '#F43F5E', '#06B6D4'];
 
 export default function AnalyticsPage() {
-  const [selectedId, setSelectedId] = useState(MOCK_CLIENTS[0].id);
-  const client = MOCK_CLIENTS.find(c => c.id === selectedId) || MOCK_CLIENTS[0];
-  const p = client.progress;
-  const color = CLIENT_COLORS[client.id % CLIENT_COLORS.length];
+  const [clients, setClients] = useState<any[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showClientList, setShowClientList] = useState(false);
+
+  useEffect(() => {
+    api.clients.list().then(data => {
+      setClients(data);
+      if (data.length) setSelectedId(data[0].id);
+    }).catch(() => setClients([]));
+  }, []);
+
+  const fallback = { id: 0, name: 'Client', initials: 'CL', progress: { weight: [], bodyFat: [], adherence: [], logs: [] }, programWeek: 1, age: '', gender: '', assessment: { height: '', bmi: '' }, split: '', goal: '' };
+  const client = clients.find(c => c.id === selectedId) || clients[0] || fallback;
+  const color = client ? CLIENT_COLORS[client.id % CLIENT_COLORS.length] : '#6366F1';
+  const p = client.progress || { weight: [], bodyFat: [], adherence: [], logs: [] };
 
   const wData = p.weight?.length ? p.weight : null;
   const bfData = p.bodyFat?.length ? p.bodyFat : null;
@@ -153,7 +164,7 @@ export default function AnalyticsPage() {
                   borderRadius: 14, boxShadow: '0 16px 48px rgba(0,0,0,0.08)',
                   padding: 6, minWidth: 200,
                 }}>
-                  {MOCK_CLIENTS.map(c => {
+                  {clients.map(c => {
                     const cc = CLIENT_COLORS[c.id % CLIENT_COLORS.length];
                     const isSel = c.id === selectedId;
                     return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Utensils, Dumbbell, Pill, Activity, Check,
   Clock, Flame, Zap, Droplets, Moon, Sun,
@@ -9,7 +9,7 @@ import {
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
 } from 'recharts';
-import { MOCK_CLIENTS, MOCK_DIET_PLAN, MOCK_WORKOUT_PLAN } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 /* ─── 3D Donut ─── */
 function Donut3D({ data, size = 180, inner = 58, outer = 82, glow = '#2563EB' }: {
@@ -153,9 +153,15 @@ const lifestyle = {
 
 export default function DietPlansPage() {
   const [tab, setTab] = useState('diet');
-  const plan = MOCK_DIET_PLAN;
-  const client = MOCK_CLIENTS[0];
-  const workout = MOCK_WORKOUT_PLAN;
+  const [clients, setClients] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.clients.list().then(setClients).catch(() => setClients([]));
+  }, []);
+
+  const plan = { calories: 2200, protein: 165, carbs: 220, fat: 55, meals: [] };
+  const client = clients[0] || { name: 'Client', initials: 'CL' };
+  const workout = { split: 'Push / Pull / Legs', days: [] };
 
   const macroData = [
     { label: 'Protein', value: plan.protein, color: '#2563EB', pct: Math.round(plan.protein * 4 / plan.calories * 100) },

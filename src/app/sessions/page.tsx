@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Flame, Clock, Users, TrendingUp, Calendar,
   ChevronRight, ArrowUpRight, ArrowDownRight, Zap,
@@ -11,7 +11,7 @@ import {
   Tooltip, ResponsiveContainer, LineChart, Line,
   AreaChart, Area,
 } from 'recharts';
-import { MOCK_CLIENTS } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 const weeklyData = [
   { week: 'W1', sessions: 42, avgDuration: 48, adherence: 82 },
@@ -24,19 +24,21 @@ const weeklyData = [
   { week: 'W8', sessions: 56, avgDuration: 52, adherence: 88 },
 ];
 
-const clientSessions = MOCK_CLIENTS.map((c, i) => ({
-  id: c.id, name: c.name, initials: c.initials,
-  sessions: [8, 12, 6, 14, 10, 4, 2][i % 7],
-  avgDuration: [48, 52, 45, 55, 50, 42, 38][i % 7],
-  trend: [3, 5, -2, 8, 4, -1, -3][i % 7],
-  status: c.status,
-}));
-
 const COLORS = ['#6366F1', '#8B5CF6', '#10B981', '#F59E0B', '#F43F5E', '#06B6D4'];
 const dayColors = ['#F43F5E', '#F59E0B', '#10B981', '#6366F1', '#8B5CF6', '#06B6D4', '#EC4899'];
 
 export default function SessionsPage() {
   const [view, setView] = useState<'overview' | 'clients'>('overview');
+  const [clients, setClients] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.clients.list().then(setClients).catch(() => setClients([]));
+  }, []);
+
+  const clientSessions = clients.map((c, i) => ({
+    id: c.id, name: c.name, initials: c.initials,
+    sessions: 0, avgDuration: 0, trend: 0, status: c.status,
+  }));
 
   return (
     <div className="page-content" style={{ animation: 'slideUp 0.4s var(--ease) both' }}>

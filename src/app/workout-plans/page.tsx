@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Dumbbell, Search, Plus, Clock, Target, Flame,
   Users, Zap, ChevronRight, Sparkles, Activity,
 } from 'lucide-react';
-import { MOCK_CLIENTS, MOCK_WORKOUT_PLAN } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 const plans = [
   {

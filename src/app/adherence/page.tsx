@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   TrendingUp, CheckCircle, XCircle, AlertTriangle,
   Users, Clock, ArrowUpRight, ArrowDownRight,
@@ -11,7 +11,7 @@ import {
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
   LineChart, Line,
 } from 'recharts';
-import { MOCK_CLIENTS } from '../../lib/mock-data';
+import { api } from '../../lib/api';
 
 const weeklyAdherence = [
   { week: 'W1', rate: 82, completed: 34, total: 42 },
@@ -34,13 +34,18 @@ const COLORS = ['#10B981', '#6366F1', '#F59E0B', '#8B5CF6', '#F43F5E', '#06B6D4'
 
 export default function AdherencePage() {
   const [period, setPeriod] = useState<'weekly' | 'client'>('weekly');
+  const [clients, setClients] = useState<any[]>([]);
 
-  const clientAdherence = MOCK_CLIENTS.map((c, i) => ({
+  useEffect(() => {
+    api.clients.list().then(setClients).catch(() => setClients([]));
+  }, []);
+
+  const clientAdherence = clients.map((c, i) => ({
     id: c.id, name: c.name, initials: c.initials,
-    rate: [92, 88, 75, 85, 90, 95][i % 6],
-    trend: [3, -2, 5, 1, -1, 2][i % 6],
-    completed: [22, 18, 12, 20, 16, 24][i % 6],
-    total: [24, 20, 16, 24, 18, 25][i % 6],
+    rate: 0,
+    trend: 0,
+    completed: 0,
+    total: 0,
     status: c.status,
   }));
 
