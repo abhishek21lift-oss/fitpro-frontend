@@ -114,6 +114,22 @@ export const api = {
         measurementChanges: { waistCm: -3, chestCm: 1 },
       })),
   },
+  assessments: {
+    list: (clientId: string) => request<any[]>(`/assessments/by-client/${clientId}`, {}, () => []),
+    get: (id: string) => request<any>(`/assessments/${id}`, {}, () => ({
+      id, client_id: '1', full_name: 'Priya Sharma', age: 28, gender: 'F',
+      height: 165, weight: 72, body_fat_percentage: 31,
+      goal: 'Fat Loss', activity_level: 'Moderate (3-4x/wk)',
+      diet_type: 'Vegetarian', meal_frequency: '3',
+      health_conditions: 'None', medications: 'None',
+      experience_level: 'Intermediate', workout_days_per_week: '4',
+      sleep_hours: '7', stress_level: 'Moderate',
+      status: 'completed', created_at: new Date().toISOString(),
+    })),
+    create: (data: any) => request<any>('/assessments', { method: 'POST', body: JSON.stringify(data) }, () => ({ id: Date.now().toString(), ...data, status: 'completed', created_at: new Date().toISOString() })),
+    update: (id: string, data: any) => request<any>(`/assessments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, () => ({ id, ...data })),
+    delete: (id: string) => request<any>(`/assessments/${id}`, { method: 'DELETE' }, () => ({ success: true })),
+  },
   analytics: {
     dashboard: () => request<any>('/analytics/dashboard', {}, () => ({ activeClients: 6, totalPlans: 14, avgAdherence: 88 })),
   },

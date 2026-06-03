@@ -52,6 +52,7 @@ export default function ClientProfilePage() {
   const [calculating, setCalculating] = useState(false);
   const [engineResults, setEngineResults] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -71,6 +72,7 @@ export default function ClientProfilePage() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/workout-plans/by-client/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
       ]);
       setClient(c);
+      setAssessmentId(c.assessment ? `${c.id}_assessment` : null);
       setProgress(Array.isArray(p) ? p : []);
       setMeasurements(Array.isArray(m) ? m : []);
       setAdherence(Array.isArray(a) ? a : []);
@@ -473,6 +475,16 @@ export default function ClientProfilePage() {
       {/* ════════ TAB: ASSESSMENT ════════ */}
       {activeTab === "assessment" && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+            <Link href={`/assessments/new/${params.id}`} className="btn btn-primary btn-sm">
+              <Plus size={14} /> New Assessment
+            </Link>
+            {assessmentId && (
+              <Link href={`/assessments/${assessmentId}`} className="btn btn-ghost btn-sm" style={{ marginLeft: 8 }}>
+                View Full Assessment <ChevronRight size={12} />
+              </Link>
+            )}
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
             <div className="card card-accent-blue" style={{ padding: 22 }}>
               <div className="section-heading blue" style={{ fontSize: 14, marginBottom: 16 }}>Personal Details</div>
