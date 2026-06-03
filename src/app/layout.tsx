@@ -16,7 +16,7 @@ const navItems = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const isAuthPage = pathname === '/login';
 
   if (isAuthPage) {
@@ -38,61 +38,72 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-white/90 backdrop-blur-sm border border-white/50 flex items-center justify-center text-gray-600 shadow-lg"
-          aria-label="Toggle sidebar"
-        >
-          {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        {/* Top Navigation Bar */}
+        <header className="topbar">
+          <div className="topbar-left">
+            <img src="/logo.png" alt="Logo" className="topbar-logo" />
+          </div>
 
-        {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-        )}
+          <nav className="topbar-nav">
+            {navItems.map(({ href, label, icon: Icon }) => {
+              const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`topbar-nav-item${active ? ' active' : ''}`}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
-        <div className="app-shell">
-          <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
-            <div className="sidebar-logo">
-              <img src="/logo.png" alt="Logo" className="sidebar-logo-icon" style={{ width: 38, height: 38, objectFit: 'cover' }} />
-            </div>
-
-            <nav className="sidebar-nav">
-              {navItems.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href || (href !== '/' && pathname.startsWith(href));
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`sidebar-nav-item${active ? ' active' : ''}`}
-                    aria-current={active ? 'page' : undefined}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <Icon size={18} />
-                    <span>{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-
-            <div className="sidebar-footer">
-              <div className="sidebar-avatar">
+          <div className="topbar-right">
+            <div className="topbar-user">
+              <div className="topbar-avatar">
                 AM
-                <span className="sidebar-avatar-dot" />
+                <span className="topbar-avatar-dot" />
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="sidebar-user-name">Dr. Arjun Mehta</div>
-                <div className="sidebar-user-role">Senior Fitness Coach</div>
+              <div className="topbar-user-info">
+                <div className="topbar-user-name">Dr. Arjun Mehta</div>
+                <div className="topbar-user-role">Senior Fitness Coach</div>
               </div>
-              <button className="sidebar-footer-action" aria-label="Settings">
-                <Settings size={15} />
-              </button>
-              <button className="sidebar-footer-action" aria-label="Logout" onClick={() => window.location.href = '/login'} title="Logout">
+              <button className="topbar-logout" onClick={() => window.location.href = '/login'} title="Logout">
                 <LogOut size={15} />
               </button>
             </div>
-          </aside>
 
+            <button className="topbar-hamburger" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </header>
+
+        {mobileOpen && (
+          <div className="mobile-overlay" onClick={() => setMobileOpen(false)} />
+        )}
+
+        <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`mobile-drawer-item${active ? ' active' : ''}`}
+                onClick={() => setMobileOpen(false)}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="app-shell">
           <main className="main-content">{children}</main>
         </div>
 
