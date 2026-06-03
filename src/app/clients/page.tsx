@@ -7,7 +7,7 @@ import {
   Dumbbell, Heart, Activity, ArrowUpRight, ArrowDownRight,
   Flame, Clock, Award, Sparkles, SlidersHorizontal,
 } from 'lucide-react';
-import { MOCK_CLIENTS } from '../../lib/mock-data';
+import { getAllClients } from '../../lib/mock-data';
 
 /* ─── Color palette ─── */
 const COLORS = ['#2563EB', '#8B5CF6', '#F59E0B', '#10B981', '#F43F5E', '#06B6D4'];
@@ -52,17 +52,18 @@ function Ring({ pct, size = 28, stroke = 2.5, color }: { pct: number; size?: num
 export default function ClientsPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const allClients = useMemo(() => getAllClients(), []);
 
   const filtered = useMemo(() =>
-    MOCK_CLIENTS.filter(c =>
+    allClients.filter(c =>
       c.name.toLowerCase().includes(search.toLowerCase()) &&
       (filterStatus === 'all' || c.status === filterStatus)
-    ), [search, filterStatus]);
+    ), [allClients, search, filterStatus]);
 
-  const total = MOCK_CLIENTS.length;
-  const activeCount = MOCK_CLIENTS.filter(c => c.status === 'active').length;
-  const fatLoss = MOCK_CLIENTS.filter(c => c.goal.toLowerCase().includes('fat')).length;
-  const muscleGain = MOCK_CLIENTS.filter(c => c.goal.toLowerCase().includes('muscle')).length;
+  const total = allClients.length;
+  const activeCount = allClients.filter(c => c.status === 'active').length;
+  const fatLoss = allClients.filter(c => c.goal.toLowerCase().includes('fat')).length;
+  const muscleGain = allClients.filter(c => c.goal.toLowerCase().includes('muscle')).length;
 
   return (
     <div className="page-content" style={{ animation: 'slideUp 0.4s var(--ease) both' }}>

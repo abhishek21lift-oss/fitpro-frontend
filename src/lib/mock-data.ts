@@ -197,3 +197,48 @@ export function getInitialsColor(id: number): string {
   const colors = ['#2563EB', '#8B5CF6', '#F59E0B', '#22C55E', '#EC4899', '#06B6D4'];
   return colors[id % colors.length];
 }
+
+/* ─── localStorage persistence ─── */
+const STORAGE_KEY = 'fitpro_saved_clients';
+
+function getSavedClients(): any[] {
+  if (typeof window === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+}
+
+function saveClients(list: any[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+export function getAllClients() {
+  const saved = getSavedClients();
+  return [...MOCK_CLIENTS, ...saved];
+}
+
+export function addClient(data: any) {
+  const saved = getSavedClients();
+  const nextId = 1000 + saved.length + 1;
+  const initials = (data.fullName || '').split(' ').map((s: string) => s[0]).join('').toUpperCase().slice(0, 2) || 'NA';
+  const newClient = {
+    id: nextId, name: data.fullName || 'New Client', age: Number(data.age) || 0, gender: data.gender || 'M',
+    goal: data.goal || 'General Fitness', status: 'active', initials,
+    programWeek: 1, calories: Number(data.calories) || 2000, split: data.split || 'Full Body 3x',
+    assessment: {
+      height: Number(data.height) || 170, weight: Number(data.weight) || 70,
+      bmi: 24, bf: Number(data.bodyFatPercentage) || 20,
+      activity: data.activityLevel || 'Moderate', healthConditions: data.healthConditions || 'None',
+      medication: data.medication || 'None', dietType: data.dietType || 'Vegetarian',
+      sleep: (data.sleepHours || 7) + 'h', stress: data.stressLevel || 'Moderate',
+      trainingExp: data.experienceLevel || 'Beginner', injuries: data.injuries || 'None',
+    },
+    progress: { weight: [], bodyFat: [], adherence: [], water: [], logs: [] },
+  };
+  saved.push(newClient);
+  saveClients(saved);
+  return newClient;
+}
+
+export function getClientById(id: number | string) {
+  return getAllClients().find(c => c.id === Number(id));
+}

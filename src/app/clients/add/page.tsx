@@ -6,6 +6,7 @@ import {
   User, Target, Heart, Salad, Dumbbell, Sun, ArrowRight, ArrowLeft,
   Sparkles, ChevronDown, ChevronUp, Check,
 } from "lucide-react";
+import { addClient } from "../../../lib/mock-data";
 
 const GOALS = ["Fat Loss", "Muscle Gain", "Strength Gain", "Recomposition", "Powerlifting"];
 const DIET_TYPES = ["Veg", "Non-Veg", "Vegan", "Eggetarian", "Flexitarian"];
@@ -53,6 +54,7 @@ export default function AddClientPage() {
   async function handleSave() {
     setSaving(true);
     const token = localStorage.getItem("fitai_token");
+    addClient(form);
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients`, {
         method: "POST",
@@ -72,10 +74,10 @@ export default function AddClientPage() {
           secondaryGoals: form.secondaryGoals,
         }),
       });
-      router.push("/clients");
     } catch {
-      alert("Failed to create client");
+      // Backend unavailable — client already saved locally
     }
+    router.push("/clients");
     setSaving(false);
   }
 
