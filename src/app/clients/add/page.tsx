@@ -74,17 +74,7 @@ export default function AddClientPage() {
       });
       if (!res.ok) throw new Error("API error");
     } catch {
-      const localClients = JSON.parse(localStorage.getItem("fitpro_clients") || "[]");
-      const initials = form.fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
-      localClients.push({
-        id: Date.now(), name: form.fullName, initials, status: "active",
-        age: form.age, gender: form.gender, goal: form.goal,
-        calories: "", split: "", programWeek: 1,
-        assessment: { bmi: "" },
-        progress: { weight: [] },
-        ...form,
-      });
-      localStorage.setItem("fitpro_clients", JSON.stringify(localClients));
+      // Backend unavailable
     }
     router.push("/clients");
     setSaving(false);
