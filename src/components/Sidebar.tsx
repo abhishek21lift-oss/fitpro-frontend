@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, Dumbbell,
+  LayoutDashboard, Users, ClipboardList, TrendingUp, Settings,
 } from 'lucide-react';
 import { MOCK_TRAINER } from '../lib/mock-data';
 
@@ -21,13 +21,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">
-          <Dumbbell size={18} />
-        </div>
-        <div className="sidebar-logo-text">
-          <div className="sidebar-logo-title">AI Fitness</div>
-          <div className="sidebar-logo-sub">Prescription System</div>
-        </div>
+        <img src="/logo.png" alt="Logo" className="sidebar-logo-icon" style={{ width: 38, height: 38, objectFit: 'cover' }} />
       </div>
 
       <nav className="sidebar-nav">
