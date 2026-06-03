@@ -199,11 +199,11 @@ const insightTexts = [
   "Vikram's weight loss is on track at -0.8kg/week",
   "Neha's new program starts next week — prep ready?",
 ];
-const randomInsight = insightTexts[Math.floor(Math.random() * insightTexts.length)];
 
 export default function Dashboard() {
   const [time, setTime] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [randomInsight] = useState(() => insightTexts[Math.floor(Math.random() * insightTexts.length)]);
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
