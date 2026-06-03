@@ -226,17 +226,9 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', maxWidth: 420, position: 'relative', zIndex: 1 }}>
           {/* Logo */}
-          <div style={{
-            width: 80, height: 80, borderRadius: 22, margin: '0 auto 28px',
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.1))',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 6,
-            boxShadow: '0 0 40px rgba(99,102,241,0.15)',
-          }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
             <img src="/logo.png" alt="FitPro" style={{
-              width: '100%', height: '100%', borderRadius: 16, objectFit: 'cover',
+              width: 140, height: 140, objectFit: 'contain',
             }} />
           </div>
 
