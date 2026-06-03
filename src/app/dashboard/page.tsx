@@ -631,7 +631,7 @@ export default function Dashboard() {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <ProgressRing pct={progPct} size={36} stroke={3.5} color={calColor} />
                     <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>W{c.programWeek}</span>
-                    <Link href={`/assessments/new/${c.id}`} style={{ fontSize: 10, fontWeight: 600, color: '#6366F1', textDecoration: 'none' }}
+                    <Link href={`/clients/${c.id}/assessments/new`} style={{ fontSize: 10, fontWeight: 600, color: '#6366F1', textDecoration: 'none' }}
                       onClick={e => e.stopPropagation()}>
                       Assess
                     </Link>

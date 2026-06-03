@@ -138,7 +138,7 @@ export default function AssessmentDetailPage() {
         <Link href={`/clients/${c.client_id}`} className="btn btn-ghost btn-sm">
           <ChevronLeft size={14} /> Back to Client
         </Link>
-        <Link href={`/assessments/new/${c.client_id}`} className="btn btn-secondary btn-sm">
+        <Link href={`/clients/${c.client_id}/assessments/new`} className="btn btn-secondary btn-sm">
           Edit Assessment
         </Link>
       </div>
