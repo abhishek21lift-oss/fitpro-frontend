@@ -56,20 +56,22 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Always show local clients immediately
+    const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
+    if (local.length) setClients(local);
+
+    // Then try API as enhancement
     api.clients.list()
       .then(apiClients => {
-        const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
-        if (local.length) {
-          const ids = new Set(apiClients.map((c: any) => c.id));
-          const newLocal = local.filter((c: any) => !ids.has(c.id));
-          setClients(newLocal.length ? [...apiClients, ...newLocal] : apiClients);
-        } else {
-          setClients(apiClients);
+        const merged = [...apiClients];
+        const ids = new Set(apiClients.map((c: any) => c.id));
+        for (const lc of local) {
+          if (!ids.has(lc.id)) merged.push(lc);
         }
+        setClients(merged);
       })
       .catch(() => {
-        const local = JSON.parse(localStorage.getItem('fitpro_clients') || '[]');
-        if (local.length) setClients(local);
+        // API failed — local data already shown above
       })
       .finally(() => setLoading(false));
   }, []);
