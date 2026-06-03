@@ -473,12 +473,16 @@ export default function ClientProfilePage() {
       )}
 
       {/* ════════ TAB: ASSESSMENT ════════ */}
+      {/* ════════ DEBUG: Always rendered link ════════ */}
+      <div style={{ marginBottom: 16 }}>
+        <a href={`/assessments/new/${params.id}`} className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+          <Plus size={14} /> New Assessment (always visible)
+        </a>
+      </div>
+
       {activeTab === "assessment" && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-            <a href={`/assessments/new/${params.id}`} className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
-              <Plus size={14} /> New Assessment
-            </a>
             {assessmentId && (
               <Link href={`/assessments/${assessmentId}`} className="btn btn-ghost btn-sm" style={{ marginLeft: 8 }}>
                 View Full Assessment <ChevronRight size={12} />
