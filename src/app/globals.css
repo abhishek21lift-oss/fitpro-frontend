@@ -97,7 +97,11 @@ input, textarea, select { font: inherit; }
   border-bottom: 1px solid rgba(255,255,255,0.65);
   box-shadow: 0 4px 24px rgba(99,102,241,0.06);
   display: flex; align-items: center;
-  z-index: 50; padding: 0 28px; gap: 32px;
+  z-index: 50;
+}
+.topbar-inner {
+  display: flex; align-items: center; gap: 32px;
+  width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 32px;
 }
 .topbar-left { display: flex; align-items: center; flex-shrink: 0; }
 .topbar-logo { width: 34px; height: 34px; object-fit: contain; }
@@ -351,7 +355,7 @@ input, textarea, select { font: inherit; }
 
 /* ─── Responsive Topbar ─── */
 @media (max-width: 1200px) {
-  .topbar { gap: 16px; padding: 0 16px; }
+  .topbar-inner { gap: 16px; padding: 0 16px; }
   .topbar-nav-item { padding: 8px 12px; font-size: 12px; }
 }
 

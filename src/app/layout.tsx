@@ -40,45 +40,47 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {/* Top Navigation Bar */}
         <header className="topbar">
-          <div className="topbar-left">
-            <img src="/logo.png" alt="Logo" className="topbar-logo" />
-          </div>
-
-          <nav className="topbar-nav">
-            {navItems.map(({ href, label, icon: Icon }) => {
-              const active = pathname === href || (href !== '/' && pathname.startsWith(href));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`topbar-nav-item${active ? ' active' : ''}`}
-                  aria-current={active ? 'page' : undefined}
-                >
-                  <Icon size={16} />
-                  <span>{label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="topbar-right">
-            <div className="topbar-user">
-              <div className="topbar-avatar">
-                AM
-                <span className="topbar-avatar-dot" />
-              </div>
-              <div className="topbar-user-info">
-                <div className="topbar-user-name">Dr. Arjun Mehta</div>
-                <div className="topbar-user-role">Senior Fitness Coach</div>
-              </div>
-              <button className="topbar-logout" onClick={() => window.location.href = '/login'} title="Logout">
-                <LogOut size={15} />
-              </button>
+          <div className="topbar-inner">
+            <div className="topbar-left">
+              <img src="/logo.png" alt="Logo" className="topbar-logo" />
             </div>
 
-            <button className="topbar-hamburger" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            <nav className="topbar-nav">
+              {navItems.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`topbar-nav-item${active ? ' active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <Icon size={16} />
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="topbar-right">
+              <div className="topbar-user">
+                <div className="topbar-avatar">
+                  AM
+                  <span className="topbar-avatar-dot" />
+                </div>
+                <div className="topbar-user-info">
+                  <div className="topbar-user-name">Dr. Arjun Mehta</div>
+                  <div className="topbar-user-role">Senior Fitness Coach</div>
+                </div>
+                <button className="topbar-logout" onClick={() => window.location.href = '/login'} title="Logout">
+                  <LogOut size={15} />
+                </button>
+              </div>
+
+              <button className="topbar-hamburger" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">
+                {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </header>
 
