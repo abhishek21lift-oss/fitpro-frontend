@@ -476,9 +476,9 @@ export default function ClientProfilePage() {
       {activeTab === "assessment" && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-            <Link href={`/assessments/new/${params.id}`} className="btn btn-primary btn-sm">
+            <button onClick={() => router.push(`/assessments/new/${params.id}`)} className="btn btn-primary btn-sm">
               <Plus size={14} /> New Assessment
-            </Link>
+            </button>
             {assessmentId && (
               <Link href={`/assessments/${assessmentId}`} className="btn btn-ghost btn-sm" style={{ marginLeft: 8 }}>
                 View Full Assessment <ChevronRight size={12} />
