@@ -254,10 +254,10 @@ export default function Dashboard() {
     <div className="page-content" style={{ animation: 'slideUp 0.4s var(--ease) both' }}>
 
       {/* ─── Mesh Gradient Orbs ─── */}
-      <div style={{ position: 'absolute', top: -120, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', top: 200, left: -150, width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle, rgba(244,63,94,0.08), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', bottom: 100, right: 100, width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.07), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', bottom: 300, left: 200, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.07), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="orb orb-1" style={{ position: 'absolute', top: -120, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="orb orb-2" style={{ position: 'absolute', top: 200, left: -150, width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle, rgba(244,63,94,0.08), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="orb orb-3" style={{ position: 'absolute', bottom: 100, right: 100, width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.07), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="orb orb-4" style={{ position: 'absolute', bottom: 300, left: 200, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.07), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
       {/* ─── Header ─── */}
       <header style={{
@@ -267,7 +267,7 @@ export default function Dashboard() {
       }}>
         <div style={{ flex: 1, minWidth: 280 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
-            <h1 style={{
+            <h1 className="dashboard-title" style={{
               fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 800, letterSpacing: '-0.5px',
               background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 50%, #F59E0B 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
@@ -309,8 +309,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', zIndex: 2 }}>
-          <div style={{ position: 'relative', transition: 'all 0.25s', width: searchFocused ? 290 : 210 }}>
+        <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', zIndex: 2 }}>
+          <div className="search-wrap" style={{ position: 'relative', transition: 'all 0.25s', width: searchFocused ? 290 : 210 }}>
             <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
             <input
               type="text" placeholder="Search clients, plans..."
@@ -362,7 +362,7 @@ export default function Dashboard() {
       </div>
 
       {/* ─── Analytics Row ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 0.85fr 0.85fr', gap: 18, marginBottom: 28, position: 'relative', zIndex: 1 }}>
+      <div className="grid-analytics" style={{ display: 'grid', gridTemplateColumns: '1.5fr 0.85fr 0.85fr', gap: 18, marginBottom: 28, position: 'relative', zIndex: 1 }}>
 
         {/* Weight Trend */}
         <div style={{
@@ -515,7 +515,7 @@ export default function Dashboard() {
       </div>
 
       {/* ─── Bottom Section ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20, position: 'relative', zIndex: 1 }}>
+      <div className="grid-bottom" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20, position: 'relative', zIndex: 1 }}>
 
         {/* Activity Feed */}
         <div style={{

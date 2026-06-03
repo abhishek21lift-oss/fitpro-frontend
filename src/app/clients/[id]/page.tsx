@@ -143,7 +143,7 @@ export default function ClientProfilePage() {
             <Skeleton h={56} w="56px" />
             <div style={{ flex: 1 }}><Skeleton h={24} w="200px" /><Skeleton h={14} w="300px" style={{ marginTop: 8 }} /></div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          <div className="grid-4-skelly" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
             {[...Array(4)].map((_, i) => <Skeleton key={i} h={100} />)}
           </div>
           <Skeleton h={300} />
@@ -318,7 +318,7 @@ export default function ClientProfilePage() {
 
       {/* ════════ TAB: OVERVIEW ════════ */}
       {activeTab === "overview" && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 20, position: 'relative', zIndex: 1 }}>
+        <div className="grid-1-4-1" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 20, position: 'relative', zIndex: 1 }}>
           {/* Left: AI Engine + Chart */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {!isCalculated && (
@@ -364,7 +364,7 @@ export default function ClientProfilePage() {
                   </div>
                   <span className="badge badge-success">Calculated</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px 20px' }}>
+                <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px 20px' }}>
                   <Field label="BMR" value={`${engineResults.bmr} kcal`} color="#8B5CF6" />
                   <Field label="TDEE" value={`${engineResults.tdee} kcal`} color="#2563EB" />
                   <Field label="Calorie Target" value={`${engineResults.calorieTarget} kcal`} color="#F59E0B" />
@@ -485,10 +485,10 @@ export default function ClientProfilePage() {
               </Link>
             )}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div className="grid-2">
             <div className="card card-accent-blue" style={{ padding: 22 }}>
               <div className="section-heading blue" style={{ fontSize: 14, marginBottom: 16 }}>Personal Details</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="grid-2-sm">
                 <Field label="Age" value={c.age} />
                 <Field label="Gender" value={c.gender} />
                 <Field label="Height" value={`${c.height || "—"} cm`} />
@@ -501,19 +501,19 @@ export default function ClientProfilePage() {
                 <span style={{ width: 4, height: 16, borderRadius: 2, background: 'linear-gradient(180deg, #8B5CF6, #7C3AED)', flexShrink: 0 }} />
                 Goal Assessment
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="grid-2-sm">
                 <Field label="Primary Goal" value={c.goal} />
                 <Field label="Secondary Goals" value={c.secondary_goals?.join(", ")} />
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div className="grid-2">
             <div className="card" style={{ padding: 22, borderTop: '3px solid #F43F5E' }}>
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Heart size={14} style={{ color: '#F43F5E' }} /> Medical
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="grid-2-sm">
                 <Field label="Conditions" value={c.medical_conditions} />
                 <Field label="Medications" value={c.medications} />
                 <Field label="Allergies" value={c.allergies} />
@@ -525,7 +525,7 @@ export default function ClientProfilePage() {
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Salad size={14} style={{ color: '#10B981' }} /> Nutrition
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="grid-2-sm">
                 <Field label="Diet Type" value={c.diet_type} />
                 <Field label="Meal Frequency" value={`${c.meal_frequency || "—"} meals/day`} />
                 <Field label="Food Likes" value={c.food_likes} />
@@ -535,12 +535,12 @@ export default function ClientProfilePage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div className="grid-2">
             <div className="card" style={{ padding: 22, borderTop: '3px solid #F59E0B' }}>
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Dumbbell size={14} style={{ color: '#F59E0B' }} /> Training
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="grid-2-sm">
                 <Field label="Experience" value={c.experience_level} />
                 <Field label="Workout Days" value={`${c.workout_days_per_week || "—"} / week`} />
                 <Field label="Duration" value={`${c.workout_duration_minutes || "—"} min`} />
@@ -552,7 +552,7 @@ export default function ClientProfilePage() {
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Sun size={14} style={{ color: '#06B6D4' }} /> Lifestyle
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="grid-2-sm">
                 <Field label="Occupation" value={c.occupation} />
                 <Field label="Activity Level" value={c.activity_level} />
                 <Field label="Sleep" value={`${c.sleep_hours || "—"} hours`} />
