@@ -4,7 +4,7 @@ import './globals.css';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, Menu, X, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, Menu, X, LogOut, ChevronDown, Plus } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -17,6 +17,7 @@ const navItems = [
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [clientsOpen, setClientsOpen] = useState(false);
   const isAuthPage = pathname === '/login';
 
   if (isAuthPage) {
@@ -47,6 +48,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <nav className="topbar-nav">
               {navItems.map(({ href, label, icon: Icon }) => {
+                if (href === '/clients') {
+                  const active = pathname === href || pathname.startsWith(href);
+                  return (
+                    <div key={href} className="nav-dropdown"
+                      onMouseEnter={() => setClientsOpen(true)}
+                      onMouseLeave={() => setClientsOpen(false)}
+                    >
+                      <Link
+                        href={href}
+                        className={`topbar-nav-item${active ? ' active' : ''}`}
+                        aria-current={active ? 'page' : undefined}
+                      >
+                        <Icon size={16} />
+                        <span>{label}</span>
+                        <ChevronDown size={12} style={{ opacity: 0.5, transition: 'transform 0.2s', transform: clientsOpen ? 'rotate(180deg)' : undefined }} />
+                      </Link>
+                      {clientsOpen && (
+                        <div className="nav-dropdown-menu">
+                          <Link href="/clients" className={`nav-dropdown-item${pathname === '/clients' ? ' active' : ''}`} onClick={() => setClientsOpen(false)}>
+                            <Users size={15} /> All Clients
+                          </Link>
+                          <Link href="/clients/add" className="nav-dropdown-item" onClick={() => setClientsOpen(false)}>
+                            <Plus size={15} /> Add Client
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
                 const active = pathname === href || (href !== '/' && pathname.startsWith(href));
                 return (
                   <Link
@@ -92,15 +122,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== '/' && pathname.startsWith(href));
             return (
-              <Link
-                key={href}
-                href={href}
-                className={`mobile-drawer-item${active ? ' active' : ''}`}
-                onClick={() => setMobileOpen(false)}
-              >
-                <Icon size={18} />
-                <span>{label}</span>
-              </Link>
+              <div key={href}>
+                <Link
+                  href={href}
+                  className={`mobile-drawer-item${active ? ' active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </Link>
+                {href === '/clients' && (
+                  <Link
+                    href="/clients/add"
+                    className="mobile-drawer-item"
+                    style={{ paddingLeft: 44, fontSize: 13 }}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <Plus size={15} /> Add Client
+                  </Link>
+                )}
+              </div>
             );
           })}
         </div>

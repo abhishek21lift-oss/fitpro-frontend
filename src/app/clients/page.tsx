@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
-  Users, Search, ChevronRight, Target, Zap,
+  Users, Plus, Search, ChevronRight, Target, Zap,
   Dumbbell, Heart, Activity, ArrowUpRight, ArrowDownRight,
   Flame, Clock, Award, Sparkles, SlidersHorizontal,
 } from 'lucide-react';
@@ -107,7 +107,10 @@ export default function ClientsPage() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <Link href="/clients/add" className="btn btn-primary btn-sm" style={{ textDecoration: 'none', gap: 6 }}>
+              <Plus size={15} /> Add Client
+            </Link>
             <div style={{ position: 'relative' }}>
               <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
               <input
@@ -118,7 +121,6 @@ export default function ClientsPage() {
                 style={{ padding: '9px 14px 9px 36px', fontSize: 13, width: 200 }}
               />
             </div>
-
           </div>
         </div>
 
