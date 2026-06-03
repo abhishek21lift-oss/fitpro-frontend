@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, ClipboardList, TrendingUp, Settings,
+  LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, LogOut,
 } from 'lucide-react';
 import { MOCK_TRAINER } from '../lib/mock-data';
 
@@ -43,10 +43,13 @@ export default function Sidebar() {
 
       <div className="sidebar-footer">
         <div className="sidebar-avatar">{MOCK_TRAINER.initials}</div>
-        <div>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div className="sidebar-user-name">{MOCK_TRAINER.name}</div>
           <div className="sidebar-user-role">{MOCK_TRAINER.title}</div>
         </div>
+        <button className="sidebar-footer-action" aria-label="Logout" onClick={() => window.location.href = '/login'} title="Logout">
+          <LogOut size={15} />
+        </button>
       </div>
     </aside>
   );

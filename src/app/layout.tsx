@@ -4,7 +4,7 @@ import './globals.css';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, TrendingUp, Settings, Menu, X, LogOut } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -80,12 +80,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 AM
                 <span className="sidebar-avatar-dot" />
               </div>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="sidebar-user-name">Dr. Arjun Mehta</div>
                 <div className="sidebar-user-role">Senior Fitness Coach</div>
               </div>
               <button className="sidebar-footer-action" aria-label="Settings">
                 <Settings size={15} />
+              </button>
+              <button className="sidebar-footer-action" aria-label="Logout" onClick={() => window.location.href = '/login'} title="Logout">
+                <LogOut size={15} />
               </button>
             </div>
           </aside>
