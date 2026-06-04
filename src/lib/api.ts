@@ -1,4 +1,4 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://fitai-coach-backend-6k1h.onrender.com'
 
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null
