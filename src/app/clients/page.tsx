@@ -57,7 +57,19 @@ export default function ClientsPage() {
 
   useEffect(() => {
     api.clients.list()
-      .then(setClients)
+      .then(data => {
+        setClients(data.map((c: any) => ({
+          ...c,
+          name: c.full_name,
+          initials: c.full_name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || '??',
+          status: c.plan_status || 'assessment_pending',
+          calories: c.calorie_target,
+          split: c.workout_split,
+          programWeek: 1,
+          assessment: { bmi: '' },
+          progress: { weight: [] },
+        })));
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
