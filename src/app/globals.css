@@ -465,3 +465,92 @@ input, textarea, select { font: inherit; }
 .text-gradient-rainbow{ background: linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899, #F43F5E, #F59E0B, #10B981); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 4s ease infinite; }
 
 @media (max-width: 768px) { .login-right { display: none; } }
+
+/* ═══════════════════════════════════════════════
+   MOBILE-FIRST RESPONSIVE ENHANCEMENTS
+   ═══════════════════════════════════════════════ */
+
+/* Font scaling & viewport safety */
+html { -webkit-text-size-adjust: 100%; }
+
+/* ─── Topbar compact on mobile ─── */
+@media (max-width: 768px) {
+  .topbar { height: 56px; }
+  .app-shell { padding-top: 56px; }
+  .topbar-inner { padding: 0 12px; gap: 10px; }
+  .topbar-logo { width: 28px; height: 28px; }
+  .topbar-avatar { width: 30px; height: 30px; font-size: 11px; }
+  .topbar-avatar-dot { width: 6px; height: 6px; }
+  .topbar-user { gap: 6px; }
+  .topbar-logout { width: 36px; height: 36px; }
+  .topbar-hamburger { width: 36px; height: 36px; }
+}
+
+/* ─── Mobile bottom nav safe area ─── */
+@media (max-width: 1024px) {
+  .mobile-nav { padding-bottom: max(8px, env(safe-area-inset-bottom, 8px)); }
+}
+
+/* ─── Grid collapse — fixed-ratio grids → single column ─── */
+@media (max-width: 1024px) {
+  [style*="grid-template-columns: 1.5fr 0.85fr 0.85fr"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns: 1.2fr 1fr"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns: 1.6fr 1fr"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns: 1.4fr 1fr"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns: 1fr 1.4fr"] { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 768px) {
+  [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 480px) {
+  [style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ─── Reduce chart / container heights on mobile ─── */
+@media (max-width: 768px) {
+  .main-content [style*="height: 300px"] { height: 200px !important; }
+  .main-content [style*="height: 280"] { height: 200px !important; }
+  .main-content [style*="height: 250"] { height: 180px !important; }
+  .main-content [style*="height: 240"] { height: 170px !important; }
+  .main-content [style*="height: 220"] { height: 160px !important; }
+  .main-content [style*="height: 200"] { height: 150px !important; }
+  .main-content [style*="height: 180"] { height: 140px !important; }
+  .main-content [style*="height: 160"] { height: 130px !important; }
+  .main-content [style*="height: 120"] { height: 100px !important; }
+}
+
+/* ─── Card padding reductions on mobile ─── */
+@media (max-width: 640px) {
+  .main-content [style*="padding: 28px"] { padding: 20px !important; }
+  .main-content [style*="padding: 24px"] { padding: 16px !important; }
+  .main-content [style*="padding: 22px"] { padding: 16px !important; }
+  .main-content [style*="padding: 20px"] { padding: 14px !important; }
+  .main-content [style*="padding: 60px"] { padding: 40px 20px !important; }
+}
+
+/* ─── Mobile drawer smooth animation ─── */
+@media (max-width: 1024px) {
+  .mobile-drawer { transition: all 0.2s var(--ease); }
+  .mobile-drawer.open { animation: slideDown 0.2s var(--ease) both; }
+  .mobile-drawer-item { padding: 14px 16px !important; font-size: 15px !important; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px) scaleY(0.98); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+/* ─── Modal mobile-friendly ─── */
+@media (max-width: 640px) {
+  .modal-card { width: 95%; border-radius: var(--radius-xl); max-height: 90vh; }
+}
+
+/* ─── Misc responsive overrides ─── */
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .login-stats { flex-wrap: wrap; gap: 24px; }
+}
+@media (max-width: 480px) {
+  .client-tabs button { font-size: 11px; padding: 6px 12px; }
+}

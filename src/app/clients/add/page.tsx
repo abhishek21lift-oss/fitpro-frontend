@@ -75,8 +75,8 @@ export default function AddClientPage() {
       } else {
         router.push("/clients");
       }
-    } catch {
-      setError("Failed to save client. Make sure the backend server is running.");
+    } catch (err: any) {
+      setError(err?.message || "Failed to save client. Make sure the backend server is running.");
     }
     setSaving(false);
   }
