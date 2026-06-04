@@ -8,44 +8,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api';
 
-const plans = [
-  {
-    id: 1, clientId: 1, clientName: 'Priya Sharma',
-    title: 'Upper/Lower 4x', split: 'Upper/Lower 4x',
-    daysPerWeek: 4, sessionMin: 50, totalExercises: 22,
-    status: 'active', progress: 65,
-  },
-  {
-    id: 2, clientId: 2, clientName: 'Rohit Verma',
-    title: 'PPL 6x', split: 'Push/Pull/Legs',
-    daysPerWeek: 6, sessionMin: 60, totalExercises: 30,
-    status: 'active', progress: 80,
-  },
-  {
-    id: 3, clientId: 3, clientName: 'Ananya Patel',
-    title: 'Full Body 3x', split: 'Full Body 3x',
-    daysPerWeek: 3, sessionMin: 45, totalExercises: 15,
-    status: 'review', progress: 30,
-  },
-  {
-    id: 4, clientId: 4, clientName: 'Vikram Singh',
-    title: '5-Day Split', split: '5-Day Split',
-    daysPerWeek: 5, sessionMin: 55, totalExercises: 25,
-    status: 'active', progress: 72,
-  },
-  {
-    id: 5, clientId: 5, clientName: 'Neha Gupta',
-    title: 'PPL 4x', split: 'Push/Pull/Legs',
-    daysPerWeek: 4, sessionMin: 45, totalExercises: 20,
-    status: 'draft', progress: 15,
-  },
-  {
-    id: 6, clientId: 6, clientName: 'Arun Kumar',
-    title: 'PPL + Arms 6x', split: 'PPL + Arms',
-    daysPerWeek: 6, sessionMin: 60, totalExercises: 35,
-    status: 'delivered', progress: 100,
-  },
-];
+const plans: any[] = [];
 
 const statusStyles: Record<string, { bg: string; text: string }> = {
   active: { bg: 'rgba(16,185,129,0.12)', text: '#059669' },

@@ -295,21 +295,20 @@ export default function ClientsPage() {
       </div>
 
       {/* Stats footer */}
-      <div style={{
-        marginTop: 28, padding: '16px 20px', borderRadius: 14,
-        background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255,255,255,0.4)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: 16, position: 'relative', zIndex: 1,
-        fontSize: 12, color: 'var(--text-muted)',
-      }}>
-        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-          <span>Avg. Age: <strong style={{ color: 'var(--text)' }}>32.2</strong></span>
-          <span>Avg. BMI: <strong style={{ color: 'var(--text)' }}>25.4</strong></span>
-          <span>Avg. Calories: <strong style={{ color: 'var(--text)' }}>2,217</strong></span>
+      {clients.length > 0 && (
+        <div style={{
+          marginTop: 28, padding: '16px 20px', borderRadius: 14,
+          background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 16, position: 'relative', zIndex: 1,
+          fontSize: 12, color: 'var(--text-muted)',
+        }}>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            <span>Total Clients: <strong style={{ color: 'var(--text)' }}>{clients.length}</strong></span>
+          </div>
         </div>
-        <span>Last updated: Today 14:32</span>
-      </div>
+      )}
     </div>
   );
 }

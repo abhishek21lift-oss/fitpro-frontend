@@ -69,10 +69,9 @@ export default function AnalyticsPage() {
     }).catch(() => setClients([]));
   }, []);
 
-  const fallback = { id: 0, name: 'Client', initials: 'CL', progress: { weight: [], bodyFat: [], adherence: [], logs: [] }, programWeek: 1, age: '', gender: '', assessment: { height: '', bmi: '' }, split: '', goal: '' };
-  const client = clients.find(c => c.id === selectedId) || clients[0] || fallback;
+  const client = clients.find(c => c.id === selectedId) || clients[0] || null;
   const color = client ? CLIENT_COLORS[client.id % CLIENT_COLORS.length] : '#6366F1';
-  const p = client.progress || { weight: [], bodyFat: [], adherence: [], logs: [] };
+  const p = client?.progress || { weight: [], bodyFat: [], adherence: [], logs: [] };
 
   const wData = p.weight?.length ? p.weight : null;
   const bfData = p.bodyFat?.length ? p.bodyFat : null;
@@ -90,7 +89,7 @@ export default function AnalyticsPage() {
   const metrics = [
     { icon: Activity, label: 'Current Weight', value: currentWeight ? `${currentWeight} kg` : '—', change: weightChange, isGood: weightChange !== null && weightChange < 0, color: '#2563EB' },
     { icon: Target, label: 'Body Fat', value: currentBf ? `${currentBf}%` : '—', change: bfChange, isGood: bfChange !== null && bfChange < 0, color: '#8B5CF6' },
-    { icon: Award, label: 'Avg. Adherence', value: avgAdherence ? `${avgAdherence}%` : '—', change: avgAdherence ? avgAdherence - 85 : null, isGood: avgAdherence !== null && avgAdherence >= 85, color: '#10B981' },
+    { icon: Award, label: 'Avg. Adherence', value: avgAdherence ? `${avgAdherence}%` : '—', change: null, isGood: true, color: '#10B981' },
     { icon: Flame, label: 'Weeks Tracked', value: `${p.weight?.length || 0}`, change: null, isGood: true, color: '#F59E0B' },
   ];
 
@@ -142,16 +141,16 @@ export default function AnalyticsPage() {
               onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.04)'}
             >
-              <div style={{
-                width: 26, height: 26, borderRadius: 7,
-                background: `linear-gradient(135deg, ${color}20, ${color}08)`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 700, color,
-              }}>
-                {client.initials}
-              </div>
-              {client.name}
-              <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+                <div style={{
+                  width: 26, height: 26, borderRadius: 7,
+                  background: `linear-gradient(135deg, ${color}20, ${color}08)`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, fontWeight: 700, color,
+                }}>
+                  {client?.initials || '?'}
+                </div>
+                {client?.name || 'Select a client'}
+                <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
             </button>
 
             {showClientList && (
@@ -198,6 +197,14 @@ export default function AnalyticsPage() {
         </div>
       </header>
 
+      {!client ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', position: 'relative', zIndex: 1 }}>
+          <Users size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
+          <p style={{ fontSize: 15, fontWeight: 600 }}>No clients yet</p>
+          <p style={{ fontSize: 13 }}>Add a client to start tracking their progress</p>
+        </div>
+      ) : (
+        <>
       {/* ─── Client Profile Card ─── */}
       <div className="card" style={{
         padding: 22, marginBottom: 24, position: 'relative', zIndex: 1,
@@ -224,7 +231,7 @@ export default function AnalyticsPage() {
               }}>{client.goal}</span>
             </div>
             <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {client.age}{client.gender} · {client.assessment.height}cm · {client.assessment.bmi} BMI · {client.split}
+              {client.age}{client.gender} · {client.assessment?.height || ''}cm · {client.assessment?.bmi || ''} BMI · {client.split}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
@@ -536,6 +543,8 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

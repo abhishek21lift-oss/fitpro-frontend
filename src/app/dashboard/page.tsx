@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users, ClipboardList, FileText, TrendingUp,
-  Activity, Search, Bell, Sparkles,
-  CheckCircle, BarChart3, Dumbbell, Zap,
+  Activity, Search, Bell,
+  CheckCircle, BarChart3,
   ArrowUpRight, ArrowDownRight, ChevronRight, Flame,
-  Target, Heart, Award, Clock, Trophy, Star,
+  Target, Clock, Trophy,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -177,33 +177,11 @@ function ActIcon({ type }: { type: string }) {
   );
 }
 
-/* ─── Data ─── */
-const complianceData = [
-  { name: 'On Track', value: 76, color: '#10B981' },
-  { name: 'Partial', value: 12, color: '#F59E0B' },
-  { name: 'Missed', value: 12, color: '#F43F5E' },
-];
 
-const weeklySessions = [
-  { day: 'Mon', sessions: 8 }, { day: 'Tue', sessions: 12 },
-  { day: 'Wed', sessions: 6 }, { day: 'Thu', sessions: 14 },
-  { day: 'Fri', sessions: 10 }, { day: 'Sat', sessions: 4 },
-  { day: 'Sun', sessions: 2 },
-];
-
-const barColors = ['#6366F1', '#8B5CF6', '#EC4899', '#F43F5E', '#F59E0B', '#10B981', '#06B6D4'];
-
-const insightTexts = [
-  "Priya's adherence dropped to 85% — consider a diet check-in",
-  "Rohit is progressing well on his strength program",
-  "Vikram's weight loss is on track at -0.8kg/week",
-  "Neha's new program starts next week — prep ready?",
-];
 
 export default function Dashboard() {
   const [time, setTime] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
-  const [randomInsight] = useState(() => insightTexts[Math.floor(Math.random() * insightTexts.length)]);
   const [clients, setClients] = useState<any[]>([]);
   const [activity, setActivity] = useState<any[]>([]);
 
@@ -220,36 +198,36 @@ export default function Dashboard() {
 
   const activeClients = clients.filter(c => c.status === 'active');
   const totalSessions = activeClients.reduce((a, c) => a + (c.programWeek || 0), 0);
-  const avgAdherence = clients.length > 0 ? Math.round(clients.reduce((s, c) => s + (c.assessment?.adherence || 85), 0) / clients.length) : 88;
+  const avgAdherence = clients.length > 0 ? Math.round(clients.reduce((s, c) => s + (c.assessment?.adherence || 0), 0) / clients.length) : 0;
 
   const metrics: KpiProps[] = [
     {
       icon: Users, label: 'Active Clients', value: `${activeClients.length}`, unit: '',
       color: '#6366F1', color2: '#8B5CF6',
       bg: 'linear-gradient(145deg, #fafbff, #f0f1ff)',
-      sparkline: [3, 4, 3, 5, 4, 6, 5, 7, 6],
-      change: 3.0, isUp: true,
+      sparkline: [],
+      change: 0, isUp: true,
     },
     {
       icon: Flame, label: 'Weekly Sessions', value: `${totalSessions}`, unit: '',
       color: '#F43F5E', color2: '#EC4899',
       bg: 'linear-gradient(145deg, #fffafc, #fff0f4)',
-      sparkline: [18, 20, 22, 21, 24, 23, 25, 24, totalSessions],
-      change: 5.2, isUp: true,
+      sparkline: [],
+      change: 0, isUp: true,
     },
     {
       icon: TrendingUp, label: 'Avg. Adherence', value: `${avgAdherence}`, unit: '%',
       color: '#10B981', color2: '#059669',
       bg: 'linear-gradient(145deg, #f7fdfb, #edfaf5)',
-      sparkline: [82, 85, 84, 86, 88, 87, 89, 90, 88],
-      change: 2.1, isUp: true,
+      sparkline: [],
+      change: 0, isUp: true,
     },
     {
-      icon: Trophy, label: 'Goals Hit', value: '14', unit: '',
+      icon: Trophy, label: 'Goals Hit', value: '0', unit: '',
       color: '#F59E0B', color2: '#F97316',
       bg: 'linear-gradient(145deg, #fffdf5, #fff8e6)',
-      sparkline: [8, 9, 10, 11, 10, 12, 13, 14, 14],
-      change: 1.4, isUp: false,
+      sparkline: [],
+      change: 0, isUp: true,
     },
   ];
 
@@ -281,28 +259,7 @@ export default function Dashboard() {
               {getGreeting()}, Coach ✨
             </h1>
           </div>
-          {/* AI Insight Pill */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 10,
-            padding: '6px 16px 6px 10px', borderRadius: 24,
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.06), rgba(236,72,153,0.04))',
-            border: '1px solid rgba(99,102,241,0.14)',
-            boxShadow: '0 2px 12px rgba(99,102,241,0.08)',
-            fontSize: 12, fontWeight: 600,
-          }}>
-            <div style={{
-              width: 22, height: 22, borderRadius: 8,
-              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, boxShadow: '0 2px 8px rgba(99,102,241,0.3)',
-            }}>
-              <Sparkles size={11} color="white" />
-            </div>
-            <span style={{
-              background: 'linear-gradient(135deg, #6366F1, #EC4899)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>{randomInsight}</span>
-          </div>
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#64748B', fontSize: 13 }}>
             <span>{formatDate()}</span>
             <span style={{ width: 3, height: 3, borderRadius: '50%', background: '#CBD5E1' }} />
@@ -385,7 +342,7 @@ export default function Dashboard() {
                 <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #6366F1, #8B5CF6)', flexShrink: 0, boxShadow: '0 0 8px rgba(99,102,241,0.4)' }} />
                 Weight Trend
               </div>
-              <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>Priya Sharma • 8-week progression</p>
+              <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>Client weight progression over time</p>
             </div>
           <Link href="/analytics" style={{
               fontSize: 12, fontWeight: 600,
@@ -424,94 +381,33 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Compliance Donut */}
+        {/* Adherence - No Data */}
         <div style={{
           background: 'white', borderRadius: 20, padding: 22,
           border: '1px solid rgba(16,185,129,0.12)',
           boxShadow: '0 4px 24px rgba(16,185,129,0.08)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
-                <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #10B981, #059669)', flexShrink: 0, boxShadow: '0 0 8px rgba(16,185,129,0.4)' }} />
-                Adherence
-              </div>
-              <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>Overall compliance</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-              <span style={{
-                fontSize: 24, fontWeight: 800,
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>76%</span>
-              <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-                <ArrowUpRight size={10} /> +3%
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+            <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #10B981, #059669)', flexShrink: 0, boxShadow: '0 0 8px rgba(16,185,129,0.4)' }} />
+            Adherence
           </div>
-          <div style={{ height: 160 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={complianceData} cx="50%" cy="50%" innerRadius={44} outerRadius={62} paddingAngle={4} dataKey="value" startAngle={90} endAngle={-270}>
-                  {complianceData.map((e, i) => (
-                    <Cell key={i} fill={e.color} style={{ filter: `drop-shadow(0 0 6px ${e.color}50)` }} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(16,185,129,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '8px 12px' }}
-                  itemStyle={{ fontSize: 13, fontWeight: 600 }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginTop: 4 }}>
-            {complianceData.map(e => (
-              <div key={e.name} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#64748B' }}>
-                <span style={{ width: 8, height: 8, borderRadius: 3, background: e.color, boxShadow: `0 0 4px ${e.color}60` }} />
-                {e.name} <span style={{ fontWeight: 700, color: '#0f172a' }}>{e.value}%</span>
-              </div>
-            ))}
+          <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+            No adherence data yet
           </div>
         </div>
 
-        {/* Weekly Sessions Bar */}
+        {/* Weekly Sessions - No Data */}
         <div style={{
           background: 'white', borderRadius: 20, padding: 22,
           border: '1px solid rgba(245,158,11,0.12)',
           boxShadow: '0 4px 24px rgba(245,158,11,0.08)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
-                <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #F59E0B, #F97316)', flexShrink: 0, boxShadow: '0 0 8px rgba(245,158,11,0.4)' }} />
-                Sessions
-              </div>
-              <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>This week's activity</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-              <span style={{
-                fontSize: 24, fontWeight: 800,
-                background: 'linear-gradient(135deg, #F59E0B, #F97316)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>56</span>
-              <span style={{ fontSize: 11, color: '#94A3B8' }}>sessions</span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+            <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #F59E0B, #F97316)', flexShrink: 0, boxShadow: '0 0 8px rgba(245,158,11,0.4)' }} />
+            Sessions
           </div>
-          <div style={{ height: 160 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklySessions}>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} dy={4} />
-                <Tooltip
-                  contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(245,158,11,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '8px 12px' }}
-                  itemStyle={{ fontSize: 13, fontWeight: 600 }}
-                />
-                <Bar dataKey="sessions" radius={[6, 6, 0, 0]} maxBarSize={22}>
-                  {weeklySessions.map((e, i) => (
-                    <Cell key={i} fill={barColors[i]} style={{ filter: `drop-shadow(0 0 4px ${barColors[i]}50)` }} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+            No session data yet
           </div>
         </div>
       </div>

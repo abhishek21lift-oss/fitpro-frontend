@@ -96,7 +96,7 @@ export default function SettingsPage() {
                 boxShadow: '0 4px 16px rgba(139,92,246,0.25)',
                 position: 'relative',
               }}>
-                AM
+                FC
                 <div style={{
                   position: 'absolute', bottom: -2, right: -2,
                   width: 22, height: 22, borderRadius: 7,
@@ -107,8 +107,8 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Dr. Arjun Mehta</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Senior Fitness Coach, CSCS</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Fitness Coach</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Professional Account</div>
               </div>
             </div>
 
@@ -118,14 +118,14 @@ export default function SettingsPage() {
                   <User size={13} style={{ color: '#8B5CF6' }} />
                   Full Name
                 </label>
-                <input className="input-field" defaultValue="Dr. Arjun Mehta" />
+                <input className="input-field" placeholder="Your full name" />
               </div>
               <div>
                 <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Mail size={13} style={{ color: '#2563EB' }} />
                   Email
                 </label>
-                <input className="input-field" defaultValue="arjun@aifitness.in" />
+                <input className="input-field" placeholder="email@example.com" />
               </div>
               <div>
                 <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -135,7 +135,7 @@ export default function SettingsPage() {
                 <textarea
                   className="input-field"
                   style={{ minHeight: 72, resize: 'vertical' }}
-                  defaultValue="Senior Fitness Coach with 10+ years of experience in strength training and sports nutrition. CSCS certified."
+                  placeholder="Tell us about yourself..."
                 />
               </div>
             </div>
@@ -291,27 +291,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Account Info */}
-          <div className="card" style={{ padding: 20, background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(8px)' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, color: 'var(--text-muted)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Account Type</span>
-                <span style={{ fontWeight: 600, color: 'var(--text)' }}>Professional</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Client Limit</span>
-                <span style={{ fontWeight: 600, color: 'var(--text)' }}>50</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Storage Used</span>
-                <span style={{ fontWeight: 600, color: 'var(--text)' }}>2.4 GB / 10 GB</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Last Login</span>
-                <span style={{ fontWeight: 600, color: 'var(--text)' }}>{new Date().toLocaleDateString()}</span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

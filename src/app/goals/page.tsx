@@ -19,15 +19,6 @@ const goalTypes = [
   { label: 'General Fitness', icon: Star, color: '#10B981', color2: '#059669' },
 ];
 
-const monthlyGoals = [
-  { month: 'Jan', achieved: 8, total: 10 },
-  { month: 'Feb', achieved: 9, total: 10 },
-  { month: 'Mar', achieved: 7, total: 10 },
-  { month: 'Apr', achieved: 10, total: 10 },
-  { month: 'May', achieved: 8, total: 10 },
-  { month: 'Jun', achieved: 9, total: 10 },
-];
-
 const COLORS = ['#F43F5E', '#8B5CF6', '#F59E0B', '#10B981', '#6366F1', '#06B6D4'];
 
 export default function GoalsPage() {
@@ -106,8 +97,8 @@ export default function GoalsPage() {
         {[
           { label: 'Goals Achieved', value: String(totalHit), change: '+12%', up: true, icon: Trophy, color: '#F59E0B' },
           { label: 'Success Rate', value: `${overallRate}%`, change: '+4%', up: true, icon: Target, color: '#10B981' },
-          { label: 'Avg Streak', value: '4.7 wk', change: '+1.2', up: true, icon: Award, color: '#8B5CF6' },
-          { label: 'On Track', value: '76%', change: '+3%', up: true, icon: TrendingUp, color: '#6366F1' },
+          { label: 'Avg Streak', value: '—', change: '—', up: true, icon: Award, color: '#8B5CF6' },
+          { label: 'On Track', value: '—', change: '—', up: true, icon: TrendingUp, color: '#6366F1' },
         ].map((s, i) => (
           <div key={i} style={{
             padding: '16px 18px', borderRadius: 16,
@@ -180,26 +171,10 @@ export default function GoalsPage() {
                 <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #8B5CF6, #EC4899)', flexShrink: 0 }} />
                 Monthly Progress
               </div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#8B5CF6', display: 'flex', alignItems: 'center', gap: 3 }}>
-                <ArrowUpRight size={12} /> +1 vs May
-              </span>
+
             </div>
-            <div style={{ height: 200 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyGoals} barGap={4}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" vertical={false} />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                  <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(139,92,246,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '10px 14px' }} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]} maxBarSize={20} fill="rgba(139,92,246,0.12)" />
-                  <Bar dataKey="achieved" radius={[4, 4, 0, 0]} maxBarSize={20}>
-                    {monthlyGoals.map((_, i) => {
-                      const c = ['#8B5CF6', '#6366F1', '#10B981', '#F59E0B', '#F43F5E', '#06B6D4'][i];
-                      return <Cell key={i} fill={c} style={{ filter: `drop-shadow(0 0 4px ${c}50)` }} />;
-                    })}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+              No goal data yet
             </div>
           </div>
         </div>

@@ -13,19 +13,7 @@ import {
 } from 'recharts';
 import { api } from '../../lib/api';
 
-const weeklyData = [
-  { week: 'W1', sessions: 42, avgDuration: 48, adherence: 82 },
-  { week: 'W2', sessions: 45, avgDuration: 50, adherence: 85 },
-  { week: 'W3', sessions: 40, avgDuration: 47, adherence: 80 },
-  { week: 'W4', sessions: 48, avgDuration: 52, adherence: 88 },
-  { week: 'W5', sessions: 52, avgDuration: 51, adherence: 86 },
-  { week: 'W6', sessions: 50, avgDuration: 53, adherence: 90 },
-  { week: 'W7', sessions: 55, avgDuration: 54, adherence: 89 },
-  { week: 'W8', sessions: 56, avgDuration: 52, adherence: 88 },
-];
-
 const COLORS = ['#6366F1', '#8B5CF6', '#10B981', '#F59E0B', '#F43F5E', '#06B6D4'];
-const dayColors = ['#F43F5E', '#F59E0B', '#10B981', '#6366F1', '#8B5CF6', '#06B6D4', '#EC4899'];
 
 export default function SessionsPage() {
   const [view, setView] = useState<'overview' | 'clients'>('overview');
@@ -92,11 +80,11 @@ export default function SessionsPage() {
 
       {/* KPI Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24, position: 'relative', zIndex: 1 }}>
-        {[
-          { label: 'Total Sessions', value: '388', change: '+8.2%', up: true, icon: Flame, color: '#F43F5E' },
-          { label: 'Avg Duration', value: '51 min', change: '+3.4%', up: true, icon: Clock, color: '#F59E0B' },
-          { label: 'Active Clients', value: '5', change: '0%', up: true, icon: Users, color: '#6366F1' },
-          { label: 'Avg Sessions/Client', value: '9.7', change: '+5.1%', up: true, icon: TrendingUp, color: '#10B981' },
+          {[
+          { label: 'Total Sessions', value: '0', change: '—', up: true, icon: Flame, color: '#F43F5E' },
+          { label: 'Avg Duration', value: '—', change: '—', up: true, icon: Clock, color: '#F59E0B' },
+          { label: 'Active Clients', value: `${clients.length}`, change: '—', up: true, icon: Users, color: '#6366F1' },
+          { label: 'Avg Sessions/Client', value: '0', change: '—', up: true, icon: TrendingUp, color: '#10B981' },
         ].map((s, i) => (
           <div key={i} style={{
             padding: '16px 18px', borderRadius: 16,
@@ -137,26 +125,10 @@ export default function SessionsPage() {
                   </div>
                   <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>8-week progression</p>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#F43F5E' }}>
-                  <ArrowUpRight size={12} style={{ display: 'inline' }} /> +14 vs W1
-                </span>
+
               </div>
-              <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={weeklyData}>
-                    <defs>
-                      <linearGradient id="sessionGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.2} />
-                        <stop offset="100%" stopColor="#F43F5E" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" vertical={false} />
-                    <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                    <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(244,63,94,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '10px 14px' }} />
-                    <Area type="monotone" dataKey="sessions" stroke="#F43F5E" strokeWidth={3} fill="url(#sessionGrad)" dot={{ r: 4, fill: '#F43F5E', stroke: 'white', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#F43F5E', stroke: 'white', strokeWidth: 2 }} />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+                No session data yet
               </div>
             </div>
 
@@ -170,24 +142,8 @@ export default function SessionsPage() {
                 <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #F59E0B, #F97316)', flexShrink: 0 }} />
                 Day Distribution
               </div>
-              <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={[
-                    { day: 'Mon', sessions: 8 }, { day: 'Tue', sessions: 12 },
-                    { day: 'Wed', sessions: 6 }, { day: 'Thu', sessions: 14 },
-                    { day: 'Fri', sessions: 10 }, { day: 'Sat', sessions: 4 },
-                    { day: 'Sun', sessions: 2 },
-                  ]}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" vertical={false} />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                    <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(245,158,11,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '8px 12px' }} />
-                    <Bar dataKey="sessions" radius={[6, 6, 0, 0]} maxBarSize={32}>
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => (
-                        <rect key={d} fill={dayColors[i]} style={{ filter: `drop-shadow(0 0 4px ${dayColors[i]}50)` }} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+                No session data yet
               </div>
             </div>
           </div>
@@ -207,17 +163,9 @@ export default function SessionsPage() {
                   <span style={{ width: 4, height: 16, borderRadius: 2, background: `linear-gradient(180deg, ${card.color}, ${card.color}99)`, flexShrink: 0 }} />
                   {card.label}
                 </div>
-                <div style={{ height: 160 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={weeklyData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" vertical={false} />
-                      <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} domain={['dataMin - 5', 'dataMax + 5']} />
-                      <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: `1px solid ${card.color}12`, borderRadius: 14, padding: '8px 12px' }} />
-                      <Line type="monotone" dataKey={card.dataKey} stroke={card.color} strokeWidth={3} dot={{ r: 4, fill: card.color, stroke: 'white', strokeWidth: 2 }} activeDot={{ r: 6, fill: card.color, stroke: 'white', strokeWidth: 2 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                  <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+                    No data yet
+                  </div>
               </div>
             ))}
           </div>

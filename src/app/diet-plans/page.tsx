@@ -133,23 +133,9 @@ const tabs = [
   { id: 'lifestyle', label: 'Lifestyle', icon: Activity },
 ];
 
-const supplements = [
-  { name: 'Whey Protein Isolate', dose: '1 scoop (30g)', timing: 'Post-workout + morning', brand: 'Optimum Nutrition' },
-  { name: 'Creatine Monohydrate', dose: '5g', timing: 'Daily (any time)', brand: 'ON' },
-  { name: 'Vitamin D3 + K2', dose: '5000 IU + 100mcg', timing: 'With breakfast', brand: 'NOW Foods' },
-  { name: 'Omega-3 Fish Oil', dose: '2g', timing: 'With meals', brand: 'Nordic Naturals' },
-  { name: 'Magnesium Glycinate', dose: '400mg', timing: 'Before bed', brand: 'Thorne' },
-  { name: 'Multivitamin', dose: '1 tablet', timing: 'With breakfast', brand: 'Garden of Life' },
-];
+const supplements: any[] = [];
 
-const lifestyle = {
-  sleep: { icon: Moon, value: '7.5h target', color: '#8B5CF6', detail: 'Consistent bed/wake times' },
-  water: { icon: Droplets, value: '3L/day', color: '#06B6D4', detail: 'Carry 1L bottle, refill 3x' },
-  steps: { icon: Activity, value: '10k/day', color: '#10B981', detail: 'Walk after meals' },
-  stress: { icon: Heart, value: 'Morning meditation 10min', color: '#F43F5E', detail: 'Deep breathing before bed' },
-  mealPrep: { icon: Flame, value: 'Sunday meal prep', color: '#F59E0B', detail: 'Batch cook for the week' },
-  sun: { icon: Sun, value: '15min morning sunlight', color: '#F97316', detail: 'Regulates circadian rhythm' },
-};
+const lifestyle: Record<string, any> = {};
 
 export default function DietPlansPage() {
   const [tab, setTab] = useState('diet');
@@ -159,9 +145,9 @@ export default function DietPlansPage() {
     api.clients.list().then(setClients).catch(() => setClients([]));
   }, []);
 
-  const plan = { calories: 2200, protein: 165, carbs: 220, fat: 55, meals: [] };
-  const client = clients[0] || { name: 'Client', initials: 'CL' };
-  const workout = { split: 'Push / Pull / Legs', days: [] };
+  const plan = { calories: 0, protein: 0, carbs: 0, fat: 0, meals: [] };
+  const client = clients[0] || null;
+  const workout = { split: '—', days: [] };
 
   const macroData = [
     { label: 'Protein', value: plan.protein, color: '#2563EB', pct: Math.round(plan.protein * 4 / plan.calories * 100) },
@@ -203,11 +189,7 @@ export default function DietPlansPage() {
               </h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: 13, flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 500, color: 'var(--text)' }}>{client.name}</span>
-              <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--text-muted)' }} />
-              <span style={{ color: '#10B981', fontWeight: 500 }}>{client.goal}</span>
-              <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--text-muted)' }} />
-              <span>Generated today</span>
+              <span style={{ fontWeight: 500, color: 'var(--text)' }}>{client?.name || 'No client selected'}</span>
             </div>
           </div>
 
@@ -256,110 +238,120 @@ export default function DietPlansPage() {
       {/* ─── DIET TAB ─── */}
       {tab === 'diet' && (
         <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Summary row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 20, marginBottom: 24 }}>
-            {/* 3D Donut */}
-            <div className="card card-accent-green" style={{ padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Caloric Distribution</h3>
-              <div style={{ position: 'relative', width: 180, height: 180 }}>
-                <Donut3D data={donutData} size={180} inner={58} outer={82} glow="#10B981" />
-                <div style={{
-                  position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
-                }}>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.5px' }}>
-                    {plan.calories.toLocaleString()}
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Daily Calories</span>
+          {!client ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+              <Utensils size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
+              <p style={{ fontSize: 15, fontWeight: 600 }}>No diet plan yet</p>
+              <p style={{ fontSize: 13 }}>Create a client first to generate diet plans</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 20, marginBottom: 24 }}>
+                <div className="card card-accent-green" style={{ padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Caloric Distribution</h3>
+                  <div style={{ position: 'relative', width: 180, height: 180 }}>
+                    <Donut3D data={donutData} size={180} inner={58} outer={82} glow="#10B981" />
+                    <div style={{
+                      position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+                    }}>
+                      <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.5px' }}>
+                        {plan.calories || '—'}
+                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Daily Calories</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 16, marginTop: 14 }}>
+                    {macroData.map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-secondary)' }}>
+                        <span style={{ width: 7, height: 7, borderRadius: 2, background: m.color }} />
+                        {m.label} <strong style={{ color: 'var(--text)' }}>{m.pct}%</strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card card-accent-purple" style={{ padding: 28 }}>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 18 }}>
+                    Macronutrient Breakdown
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {macroData.map((m, i) => <MacroBar key={i} {...m} />)}
+                  </div>
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(0,0,0,0.04)', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted)' }}>
+                    <span>Total: <strong style={{ color: 'var(--text)' }}>{plan.calories || 0} kcal</strong></span>
+                    <span>Protein: <strong style={{ color: '#2563EB' }}>{plan.protein}g</strong></span>
+                    <span>Carbs: <strong style={{ color: '#F59E0B' }}>{plan.carbs}g</strong></span>
+                    <span>Fat: <strong style={{ color: '#F43F5E' }}>{plan.fat}g</strong></span>
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 16, marginTop: 14 }}>
-                {macroData.map((m, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-secondary)' }}>
-                    <span style={{ width: 7, height: 7, borderRadius: 2, background: m.color }} />
-                    {m.label} <strong style={{ color: 'var(--text)' }}>{m.pct}%</strong>
+
+              <h3 style={{
+                fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700, color: 'var(--text)',
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
+              }}>
+                <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #10B981, #06B6D4)' }} />
+                Weekly Meal Schedule
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {plan.meals.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: 13 }}>
+                    No meals scheduled yet. Generate a diet plan to get started.
+                  </div>
+                ) : plan.meals.slice(0, 3).map((day, di) => (
+                  <div key={di} className="card" style={{
+                    padding: 20, borderLeft: `3px solid ${dayColors[di % dayColors.length]}`,
+                    animation: `slideUp 0.3s var(--ease) ${di * 0.06}s both`,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: 8,
+                        background: `${dayColors[di % dayColors.length]}14`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: dayColors[di % dayColors.length], fontSize: 12, fontWeight: 700,
+                      }}>
+                        {di + 1}
+                      </div>
+                      <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
+                        {day.day}
+                      </h4>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Clock size={11} />
+                        {day.meals[0].time} – {day.meals[day.meals.length - 1].time}
+                      </span>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Meal</th><th>Time</th><th>Items</th>
+                            <th style={{ textAlign: 'right' }}>Cal</th>
+                            <th style={{ textAlign: 'right', color: '#2563EB' }}>P</th>
+                            <th style={{ textAlign: 'right', color: '#F59E0B' }}>C</th>
+                            <th style={{ textAlign: 'right', color: '#F43F5E' }}>F</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {day.meals.map((meal, mi) => (
+                            <tr key={mi}>
+                              <td style={{ fontWeight: 600, color: 'var(--text)' }}>{meal.name}</td>
+                              <td style={{ color: 'var(--text-muted)' }}>{meal.time}</td>
+                              <td style={{ color: 'var(--text-secondary)', maxWidth: 220 }}>{meal.items}</td>
+                              <td style={{ textAlign: 'right', fontWeight: 600 }}>{meal.cals}</td>
+                              <td style={{ textAlign: 'right', color: '#2563EB' }}>{meal.protein}</td>
+                              <td style={{ textAlign: 'right', color: '#D97706' }}>{meal.carbs}</td>
+                              <td style={{ textAlign: 'right', color: '#E11D48' }}>{meal.fat}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Macros */}
-            <div className="card card-accent-purple" style={{ padding: 28 }}>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 18 }}>
-                Macronutrient Breakdown
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {macroData.map((m, i) => <MacroBar key={i} {...m} />)}
-              </div>
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(0,0,0,0.04)', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted)' }}>
-                <span>Total: <strong style={{ color: 'var(--text)' }}>{plan.calories.toLocaleString()} kcal</strong></span>
-                <span>Protein: <strong style={{ color: '#2563EB' }}>{plan.protein}g</strong></span>
-                <span>Carbs: <strong style={{ color: '#F59E0B' }}>{plan.carbs}g</strong></span>
-                <span>Fat: <strong style={{ color: '#F43F5E' }}>{plan.fat}g</strong></span>
-              </div>
-            </div>
-          </div>
-
-          {/* Meal Schedule */}
-          <h3 style={{
-            fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700, color: 'var(--text)',
-            display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
-          }}>
-            <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #10B981, #06B6D4)' }} />
-            Weekly Meal Schedule
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {plan.meals.slice(0, 3).map((day, di) => (
-              <div key={di} className="card" style={{
-                padding: 20, borderLeft: `3px solid ${dayColors[di % dayColors.length]}`,
-                animation: `slideUp 0.3s var(--ease) ${di * 0.06}s both`,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 8,
-                    background: `${dayColors[di % dayColors.length]}14`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: dayColors[di % dayColors.length], fontSize: 12, fontWeight: 700,
-                  }}>
-                    {di + 1}
-                  </div>
-                  <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
-                    {day.day}
-                  </h4>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Clock size={11} />
-                    {day.meals[0].time} – {day.meals[day.meals.length - 1].time}
-                  </span>
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Meal</th><th>Time</th><th>Items</th>
-                        <th style={{ textAlign: 'right' }}>Cal</th>
-                        <th style={{ textAlign: 'right', color: '#2563EB' }}>P</th>
-                        <th style={{ textAlign: 'right', color: '#F59E0B' }}>C</th>
-                        <th style={{ textAlign: 'right', color: '#F43F5E' }}>F</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {day.meals.map((meal, mi) => (
-                        <tr key={mi}>
-                          <td style={{ fontWeight: 600, color: 'var(--text)' }}>{meal.name}</td>
-                          <td style={{ color: 'var(--text-muted)' }}>{meal.time}</td>
-                          <td style={{ color: 'var(--text-secondary)', maxWidth: 220 }}>{meal.items}</td>
-                          <td style={{ textAlign: 'right', fontWeight: 600 }}>{meal.cals}</td>
-                          <td style={{ textAlign: 'right', color: '#2563EB' }}>{meal.protein}</td>
-                          <td style={{ textAlign: 'right', color: '#D97706' }}>{meal.carbs}</td>
-                          <td style={{ textAlign: 'right', color: '#E11D48' }}>{meal.fat}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       )}
 
@@ -472,44 +464,51 @@ export default function DietPlansPage() {
             <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #8B5CF6, #F43F5E)' }} />
             Supplement Stack
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
-            {supplements.map((s, i) => {
-              const colors = ['#8B5CF6', '#2563EB', '#F59E0B', '#06B6D4', '#F43F5E', '#10B981'];
-              const c = colors[i % colors.length];
-              return (
-                <div key={i} className="card card-hover" style={{
-                  padding: 20, borderLeft: `3px solid ${c}`,
-                  animation: `slideUp 0.3s var(--ease) ${i * 0.04}s both`,
-                }}>
-                  <div style={{ display: 'flex', gap: 14 }}>
-                    <div style={{
-                      width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                      background: `linear-gradient(135deg, ${c}20, ${c}08)`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: c,
-                      boxShadow: `0 3px 10px ${c}12`,
-                    }}>
-                      <Pill size={18} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{s.name}</h4>
-                      <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.dose}</p>
-                      <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                        <span style={{
-                          padding: '2px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600,
-                          background: `${c}12`, color: c,
-                        }}>
-                          {s.timing}
-                        </span>
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)', padding: '2px 0' }}>
-                          {s.brand}
-                        </span>
+          {supplements.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: 13 }}>
+              <Pill size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
+              <p>No supplements prescribed yet</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+              {supplements.map((s, i) => {
+                const colors = ['#8B5CF6', '#2563EB', '#F59E0B', '#06B6D4', '#F43F5E', '#10B981'];
+                const c = colors[i % colors.length];
+                return (
+                  <div key={i} className="card card-hover" style={{
+                    padding: 20, borderLeft: `3px solid ${c}`,
+                    animation: `slideUp 0.3s var(--ease) ${i * 0.04}s both`,
+                  }}>
+                    <div style={{ display: 'flex', gap: 14 }}>
+                      <div style={{
+                        width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                        background: `linear-gradient(135deg, ${c}20, ${c}08)`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: c,
+                        boxShadow: `0 3px 10px ${c}12`,
+                      }}>
+                        <Pill size={18} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{s.name}</h4>
+                        <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.dose}</p>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                          <span style={{
+                            padding: '2px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600,
+                            background: `${c}12`, color: c,
+                          }}>
+                            {s.timing}
+                          </span>
+                          <span style={{ fontSize: 10, color: 'var(--text-muted)', padding: '2px 0' }}>
+                            {s.brand}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -523,35 +522,42 @@ export default function DietPlansPage() {
             <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #F59E0B, #F97316)' }} />
             Lifestyle Prescription
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-            {Object.entries(lifestyle).map(([key, item], i) => {
-              const Icon = item.icon;
-              return (
-                <div key={key} className="card card-hover" style={{
-                  padding: 20, borderLeft: `3px solid ${item.color}`,
-                  animation: `slideUp 0.3s var(--ease) ${i * 0.05}s both`,
-                }}>
-                  <div style={{ display: 'flex', gap: 14 }}>
-                    <div style={{
-                      width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                      background: `linear-gradient(135deg, ${item.color}20, ${item.color}08)`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color,
-                      boxShadow: `0 3px 10px ${item.color}12`,
-                    }}>
-                      <Icon size={18} />
-                    </div>
-                    <div>
-                      <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2, textTransform: 'capitalize' }}>
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
-                      </h4>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: item.color, marginBottom: 2 }}>{item.value}</p>
-                      <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.detail}</p>
+          {Object.keys(lifestyle).length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: 13 }}>
+              <Activity size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
+              <p>No lifestyle recommendations yet</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
+              {Object.entries(lifestyle).map(([key, item], i) => {
+                const Icon = item.icon;
+                return (
+                  <div key={key} className="card card-hover" style={{
+                    padding: 20, borderLeft: `3px solid ${item.color}`,
+                    animation: `slideUp 0.3s var(--ease) ${i * 0.05}s both`,
+                  }}>
+                    <div style={{ display: 'flex', gap: 14 }}>
+                      <div style={{
+                        width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                        background: `linear-gradient(135deg, ${item.color}20, ${item.color}08)`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color,
+                        boxShadow: `0 3px 10px ${item.color}12`,
+                      }}>
+                        <Icon size={18} />
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2, textTransform: 'capitalize' }}>
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </h4>
+                        <p style={{ fontSize: 13, fontWeight: 500, color: item.color, marginBottom: 2 }}>{item.value}</p>
+                        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.detail}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

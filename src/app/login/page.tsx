@@ -24,7 +24,7 @@ export default function LoginPage() {
       localStorage.setItem("fitai_token", data.token);
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Invalid credentials. Try admin@fitpro.com / fitpro123");
+      setError(err.message || "Invalid email or password");
     }
     setLoading(false);
   }
@@ -154,7 +154,7 @@ export default function LoginPage() {
               <input
                 type="email" value={email}
                 onChange={e => setEmail(e.target.value)}
-                required placeholder="admin@fitpro.com"
+                required placeholder="you@example.com"
                 style={{
                   width: '100%', padding: '14px 16px', fontSize: 14, fontFamily: 'var(--font-sans)',
                   borderRadius: 14, border: '1.5px solid #E2E8F0',
@@ -308,9 +308,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <p style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginTop: 20 }}>
-            Demo: <span style={{ color: '#C8102E', fontWeight: 600 }}>admin@fitpro.com</span> / <span style={{ color: '#C8102E', fontWeight: 600 }}>fitpro123</span>
-          </p>
+
         </div>
       </div>
 

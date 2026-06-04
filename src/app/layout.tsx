@@ -95,12 +95,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="topbar-right">
               <div className="topbar-user">
                 <div className="topbar-avatar">
-                  AM
+                  FC
                   <span className="topbar-avatar-dot" />
                 </div>
                 <div className="topbar-user-info">
-                  <div className="topbar-user-name">Dr. Arjun Mehta</div>
-                  <div className="topbar-user-role">Senior Fitness Coach</div>
+                  <div className="topbar-user-name">Fitness Coach</div>
+                  <div className="topbar-user-role">Professional Account</div>
                 </div>
                 <button className="topbar-logout" onClick={() => window.location.href = '/login'} title="Logout">
                   <LogOut size={15} />

@@ -13,23 +13,6 @@ import {
 } from 'recharts';
 import { api } from '../../lib/api';
 
-const weeklyAdherence = [
-  { week: 'W1', rate: 82, completed: 34, total: 42 },
-  { week: 'W2', rate: 85, completed: 38, total: 45 },
-  { week: 'W3', rate: 80, completed: 32, total: 40 },
-  { week: 'W4', rate: 88, completed: 42, total: 48 },
-  { week: 'W5', rate: 86, completed: 45, total: 52 },
-  { week: 'W6', rate: 90, completed: 45, total: 50 },
-  { week: 'W7', rate: 89, completed: 49, total: 55 },
-  { week: 'W8', rate: 88, completed: 49, total: 56 },
-];
-
-const complianceData = [
-  { name: 'On Track', value: 76, color: '#10B981' },
-  { name: 'Partial', value: 14, color: '#F59E0B' },
-  { name: 'Missed', value: 10, color: '#F43F5E' },
-];
-
 const COLORS = ['#10B981', '#6366F1', '#F59E0B', '#8B5CF6', '#F43F5E', '#06B6D4'];
 
 export default function AdherencePage() {
@@ -101,11 +84,11 @@ export default function AdherencePage() {
 
       {/* KPI Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24, position: 'relative', zIndex: 1 }}>
-        {[
-          { label: 'Overall Adherence', value: '86%', change: '+2.1%', up: true, icon: TrendingUp, color: '#10B981' },
-          { label: 'On Track', value: '76%', change: '+3%', up: true, icon: CheckCircle, color: '#10B981' },
-          { label: 'Needs Attention', value: '14%', change: '-1%', up: false, icon: AlertTriangle, color: '#F59E0B' },
-          { label: 'Missed Sessions', value: '10%', change: '+2%', up: false, icon: XCircle, color: '#F43F5E' },
+          {[
+          { label: 'Overall Adherence', value: '—', change: '—', up: true, icon: TrendingUp, color: '#10B981' },
+          { label: 'On Track', value: '—', change: '—', up: true, icon: CheckCircle, color: '#10B981' },
+          { label: 'Needs Attention', value: '—', change: '—', up: false, icon: AlertTriangle, color: '#F59E0B' },
+          { label: 'Missed Sessions', value: '—', change: '—', up: false, icon: XCircle, color: '#F43F5E' },
         ].map((s, i) => (
           <div key={i} style={{
             padding: '16px 18px', borderRadius: 16,
@@ -143,23 +126,8 @@ export default function AdherencePage() {
                 Adherence Trend
               </div>
             </div>
-            <div style={{ height: 240 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyAdherence}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" vertical={false} />
-                  <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                  <YAxis domain={[70, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                  <Tooltip
-                    contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(16,185,129,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '10px 14px' }}
-                    formatter={(value: number) => [`${value}%`, 'Adherence']}
-                  />
-                  <Bar dataKey="rate" radius={[6, 6, 0, 0]} maxBarSize={36}>
-                    {weeklyAdherence.map((_, i) => (
-                      <Cell key={i} fill={weeklyAdherence[i].rate >= 85 ? '#10B981' : weeklyAdherence[i].rate >= 75 ? '#F59E0B' : '#F43F5E'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+              No adherence data yet
             </div>
           </div>
 
@@ -173,25 +141,8 @@ export default function AdherencePage() {
               <span style={{ width: 4, height: 18, borderRadius: 2, background: 'linear-gradient(180deg, #6366F1, #8B5CF6)', flexShrink: 0 }} />
               Compliance Breakdown
             </div>
-            <div style={{ height: 180 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={complianceData} cx="50%" cy="50%" innerRadius={50} outerRadius={72} paddingAngle={4} dataKey="value" startAngle={90} endAngle={-270}>
-                    {complianceData.map((e, i) => (
-                      <Cell key={i} fill={e.color} style={{ filter: `drop-shadow(0 0 6px ${e.color}50)` }} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(99,102,241,0.12)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', padding: '8px 12px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
-              {complianceData.map(e => (
-                <div key={e.name} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#64748B' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 3, background: e.color, boxShadow: `0 0 4px ${e.color}60` }} />
-                  {e.name}
-                </div>
-              ))}
+            <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
+              No compliance data yet
             </div>
           </div>
         </div>
