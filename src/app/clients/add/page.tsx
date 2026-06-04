@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   User, Target, Heart, Salad, Dumbbell, Sun,
-  Sparkles, Check, ChevronRight, ChevronLeft,
+  Sparkles, Check, ChevronRight, ChevronLeft, AlertCircle,
 } from "lucide-react";
+import { api } from "../../../lib/api";
 
 const GOALS = ["Fat Loss", "Muscle Gain", "Strength Gain", "Recomposition", "Powerlifting"];
 const DIET_TYPES = ["Veg", "Non-Veg", "Vegan", "Eggetarian", "Flexitarian"];
@@ -27,6 +28,7 @@ export default function AddClientPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     fullName: "", age: "", gender: "", height: "", weight: "", bodyFatPercentage: "",
     goal: "", secondaryGoals: [] as string[],
@@ -52,31 +54,30 @@ export default function AddClientPage() {
 
   async function handleSave() {
     setSaving(true);
-    const token = localStorage.getItem("fitai_token");
+    setError("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
-          ...form,
-          age: form.age ? Number(form.age) : null,
-          height: form.height ? Number(form.height) : null,
-          weight: form.weight ? Number(form.weight) : null,
-          bodyFatPercentage: form.bodyFatPercentage ? Number(form.bodyFatPercentage) : null,
-          budgetPerMeal: form.budgetPerMeal ? Number(form.budgetPerMeal) : null,
-          waterIntakeCups: form.waterIntakeCups ? Number(form.waterIntakeCups) : null,
-          mealFrequency: form.mealFrequency ? Number(form.mealFrequency) : null,
-          workoutDaysPerWeek: form.workoutDaysPerWeek ? Number(form.workoutDaysPerWeek) : null,
-          workoutDurationMinutes: form.workoutDurationMinutes ? Number(form.workoutDurationMinutes) : null,
-          sleepHours: form.sleepHours ? Number(form.sleepHours) : null,
-          secondaryGoals: form.secondaryGoals,
-        }),
+      const created = await api.clients.create({
+        ...form,
+        age: form.age ? Number(form.age) : null,
+        height: form.height ? Number(form.height) : null,
+        weight: form.weight ? Number(form.weight) : null,
+        bodyFatPercentage: form.bodyFatPercentage ? Number(form.bodyFatPercentage) : null,
+        budgetPerMeal: form.budgetPerMeal ? Number(form.budgetPerMeal) : null,
+        waterIntakeCups: form.waterIntakeCups ? Number(form.waterIntakeCups) : null,
+        mealFrequency: form.mealFrequency ? Number(form.mealFrequency) : null,
+        workoutDaysPerWeek: form.workoutDaysPerWeek ? Number(form.workoutDaysPerWeek) : null,
+        workoutDurationMinutes: form.workoutDurationMinutes ? Number(form.workoutDurationMinutes) : null,
+        sleepHours: form.sleepHours ? Number(form.sleepHours) : null,
+        secondaryGoals: form.secondaryGoals,
       });
-      if (!res.ok) throw new Error("API error");
+      if (created?.id) {
+        router.push(`/clients/${created.id}`);
+      } else {
+        router.push("/clients");
+      }
     } catch {
-      // Backend unavailable
+      setError("Failed to save client. Make sure the backend server is running.");
     }
-    router.push("/clients");
     setSaving(false);
   }
 
@@ -537,9 +538,21 @@ export default function AddClientPage() {
                 Continue <ChevronRight size={16} />
               </button>
             ) : (
-              <button
-                onClick={handleSave}
-                disabled={saving || !form.fullName}
+              <>
+                {error && (
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    padding: "10px 16px", borderRadius: 10,
+                    background: "rgba(239,68,68,0.08)", color: "#DC2626",
+                    fontSize: 13, fontWeight: 500, marginBottom: 12,
+                  }}>
+                    <AlertCircle size={16} />
+                    {error}
+                  </div>
+                )}
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !form.fullName}
                 style={{
                   padding: "clamp(10px, 1.2vw, 12px) clamp(20px, 2.5vw, 28px)",
                   borderRadius: 12, border: "none",
@@ -559,9 +572,10 @@ export default function AddClientPage() {
                 {saving ? (
                   "Saving..."
                 ) : (
-                  <><Sparkles size={16} /> Generate AI Plan</>
+                  <><Check size={16} /> Save Client</>
                 )}
               </button>
+              </>
             )}
           </div>
         </div>

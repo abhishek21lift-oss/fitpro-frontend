@@ -10,6 +10,7 @@ import {
   ChevronLeft, Award, AlertCircle, RefreshCw, Loader2,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { api } from "../../../lib/api";
 
 const COLORS = ['#6366F1', '#8B5CF6', '#10B981', '#F59E0B', '#F43F5E', '#06B6D4'];
 
@@ -71,12 +72,12 @@ export default function ClientProfilePage() {
     setError("");
     try {
       const [c, p, m, a, dp, wp] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => { if (!r.ok) throw new Error('Failed to load client'); return r.json(); }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/${id}/progress`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/${id}/measurements`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/${id}/adherence`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/diet-plans/by-client/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/workout-plans/by-client/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
+        api.clients.get(id),
+        api.clients.progress.list(id).catch(() => []),
+        api.clients.measurements.list(id).catch(() => []),
+        api.clients.adherence.list(id).catch(() => []),
+        api.dietPlans.byClient(id).catch(() => []),
+        api.workoutPlans.byClient(id).catch(() => []),
       ]);
       setClient(c);
       setAssessmentId(c.assessment ? `${c.id}_assessment` : null);
@@ -96,25 +97,18 @@ export default function ClientProfilePage() {
   async function addProgress() {
     if (!newWeight) return;
     setAdding(true);
-    const token = localStorage.getItem("fitai_token");
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/${params.id}/progress`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ weight: parseFloat(newWeight), note: newNote }),
-    });
-    loadData();
-    setNewWeight(""); setNewNote(""); setAdding(false);
+    try {
+      await api.clients.progress.create(params.id as string, { weight: parseFloat(newWeight), note: newNote });
+      loadData();
+      setNewWeight(""); setNewNote("");
+    } catch {}
+    setAdding(false);
   }
 
   async function runEngine() {
     setCalculating(true);
-    const token = localStorage.getItem("fitai_token");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/engine/calculate/${params.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      });
-      const data = await res.json();
+      const data = await api.engine.calculate(params.id as string);
       setEngineResults(data);
       loadData();
     } catch {}
@@ -122,21 +116,17 @@ export default function ClientProfilePage() {
   }
 
   async function generateDiet() {
-    const token = localStorage.getItem("fitai_token");
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/diet-plans/generate/${params.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    });
-    loadData();
+    try {
+      await api.dietPlans.generate(params.id as string);
+      loadData();
+    } catch {}
   }
 
   async function generateWorkout() {
-    const token = localStorage.getItem("fitai_token");
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/workout-plans/generate/${params.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    });
-    loadData();
+    try {
+      await api.workoutPlans.generate(params.id as string);
+      loadData();
+    } catch {}
   }
 
   const th = THEMES[activeTab as keyof typeof THEMES] || THEMES.overview;

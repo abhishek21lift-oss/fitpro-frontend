@@ -7,6 +7,7 @@ import {
   ChevronLeft, ChevronRight, Save, Activity, Heart, Dumbbell, Sun, Salad,
   Brain, User, Target, ClipboardList, Check, ArrowRight,
 } from "lucide-react";
+import { api } from "../../../../../lib/api";
 
 const GOALS = ["Fat Loss", "Muscle Gain", "Weight Loss", "General Fitness", "Endurance", "Recomposition"];
 const ACTIVITY_LEVELS = ["Sedentary", "Light (1-2x/wk)", "Moderate (3-4x/wk)", "Active (5-6x/wk)", "Very Active (6-7x/wk)"];
@@ -127,13 +128,8 @@ export default function NewAssessmentPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const token = localStorage.getItem("fitai_token");
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assessments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ ...form, client_id: clientId }),
-      });
+      await api.assessments.create({ ...form, client_id: clientId });
       router.push(`/clients/${clientId}`);
     } catch {
       alert("Failed to save assessment. Try again.");
